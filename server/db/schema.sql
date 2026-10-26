@@ -106,3 +106,8 @@ CREATE TABLE hotel_amenities (
   amenity_id  INT  NOT NULL REFERENCES amenities(id) ON DELETE CASCADE,
   PRIMARY KEY (hotel_id, amenity_id)
 );
+
+CREATE TABLE amenities (
+  id    SERIAL PRIMARY KEY,
+  name  TEXT NOT NULL UNIQUE                       
+);
