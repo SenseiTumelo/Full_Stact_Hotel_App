@@ -8,4 +8,4 @@ app.use(express.json());  // let the API read JSON sent in requests
 app.get('/api/v1/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
-export app;
+export default app;
