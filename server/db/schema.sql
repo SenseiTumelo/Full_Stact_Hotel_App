@@ -51,3 +51,17 @@ CREATE TABLE room_types (
   total_rooms     SMALLINT NOT NULL CHECK (total_rooms >= 0),
   description     TEXT
 );
+
+CREATE TABLE bookings (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id        UUID NOT NULL REFERENCES users(id),
+  room_type_id   UUID NOT NULL REFERENCES room_types(id),
+  check_in       DATE NOT NULL,
+  check_out      DATE NOT NULL,
+  rooms          SMALLINT NOT NULL CHECK (rooms > 0),
+  guests         SMALLINT NOT NULL CHECK (guests > 0),
+  total_price    NUMERIC(10,2) NOT NULL,           -- snapshot at booking time
+  status         booking_status NOT NULL DEFAULT 'pending',
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (check_out > check_in)
+);
