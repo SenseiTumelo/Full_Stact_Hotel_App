@@ -80,7 +80,7 @@ CREATE TABLE reviews (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID NOT NULL REFERENCES users(id),
   hotel_id    UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
-  booking_id  UUID NOT NULL UNIQUE REFERENCES bookings(id), -- one review per stay
+  booking_id  UUID NOT NULL UNIQUE REFERENCES bookings(id), 
   rating      SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
   comment     TEXT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -91,4 +91,13 @@ CREATE TABLE favourites (
   hotel_id   UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (user_id, hotel_id)
+);
+
+CREATE TABLE notifications (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type        TEXT NOT NULL,                       -- 'booking_confirmed', 'promotion', ...
+  message     TEXT NOT NULL,
+  is_read     BOOLEAN NOT NULL DEFAULT false,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
