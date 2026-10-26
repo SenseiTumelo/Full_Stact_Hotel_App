@@ -96,8 +96,13 @@ CREATE TABLE favourites (
 CREATE TABLE notifications (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  type        TEXT NOT NULL,                       -- 'booking_confirmed', 'promotion', ...
-  message     TEXT NOT NULL,
+  type        TEXT NOT NULL,                       
   is_read     BOOLEAN NOT NULL DEFAULT false,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE hotel_amenities (
+  hotel_id    UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  amenity_id  INT  NOT NULL REFERENCES amenities(id) ON DELETE CASCADE,
+  PRIMARY KEY (hotel_id, amenity_id)
 );
