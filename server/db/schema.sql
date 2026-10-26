@@ -11,6 +11,14 @@ CREATE TABLE users (
   deleted_at    TIMESTAMPTZ
 );
 
+CREATE TABLE oauth_accounts (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id          UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  provider         TEXT NOT NULL,                  
+  provider_user_id TEXT NOT NULL,
+  UNIQUE (provider, provider_user_id)
+);
+
 CREATE TABLE hotels (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name         TEXT NOT NULL,
