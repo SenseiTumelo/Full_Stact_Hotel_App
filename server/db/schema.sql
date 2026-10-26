@@ -1,4 +1,6 @@
-
+CREATE TYPE user_role AS ENUM ('guest', 'admin');
+CREATE TYPE booking_status AS ENUM ('pending', 'approved', 'cancelled', 'completed');
+CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'refunded');
 
 CREATE TABLE users (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
