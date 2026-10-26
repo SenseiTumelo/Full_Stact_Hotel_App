@@ -65,3 +65,14 @@ CREATE TABLE bookings (
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   CHECK (check_out > check_in)
 );
+
+CREATE TABLE payments (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  booking_id    UUID NOT NULL REFERENCES bookings(id),
+  provider      TEXT NOT NULL,                     
+  provider_ref  TEXT NOT NULL UNIQUE,              
+  amount        NUMERIC(10,2) NOT NULL,
+  status        payment_status NOT NULL DEFAULT 'pending',
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
