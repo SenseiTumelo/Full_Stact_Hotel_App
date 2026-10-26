@@ -86,3 +86,9 @@ CREATE TABLE reviews (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE favourites (
+  user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  hotel_id   UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, hotel_id)
+);
