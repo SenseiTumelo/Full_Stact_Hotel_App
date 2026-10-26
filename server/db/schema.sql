@@ -40,3 +40,14 @@ CREATE TABLE hotel_images (
   url        TEXT NOT NULL,
   position   SMALLINT NOT NULL DEFAULT 0
 );
+
+CREATE TABLE room_types (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id        UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,                   -- 'Deluxe King'
+  capacity        SMALLINT NOT NULL CHECK (capacity > 0),
+  price_per_night NUMERIC(10,2) NOT NULL CHECK (price_per_night >= 0),
+  currency        CHAR(3) NOT NULL DEFAULT 'ZAR',
+  total_rooms     SMALLINT NOT NULL CHECK (total_rooms >= 0),
+  description     TEXT
+);
