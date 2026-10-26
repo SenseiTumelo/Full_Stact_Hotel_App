@@ -32,3 +32,11 @@ CREATE TABLE hotels (
   policies     TEXT,                               -- check-in/out times, cancellation, pets
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+
+CREATE TABLE hotel_images (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id   UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  url        TEXT NOT NULL,
+  position   SMALLINT NOT NULL DEFAULT 0
+);
