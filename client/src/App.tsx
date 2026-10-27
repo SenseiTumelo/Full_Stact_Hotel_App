@@ -1,12 +1,5 @@
+import Home from './pages/Home';
 
-function App() {
- 
-
-  return (
-    <>
-      <h1>Hotel App</h1>
-    </>
-  )
+export default function App() {
+  return <Home />;
 }
-
-export default App
