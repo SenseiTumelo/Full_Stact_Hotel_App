@@ -121,3 +121,11 @@ CREATE TABLE oauth_accounts (
   provider_user_id TEXT NOT NULL,
   UNIQUE (provider, provider_user_id)
 );
+
+-- Performance indexes
+CREATE INDEX idx_hotels_city          ON hotels (city);
+CREATE INDEX idx_room_types_hotel     ON room_types (hotel_id, price_per_night);
+CREATE INDEX idx_bookings_user        ON bookings (user_id);
+CREATE INDEX idx_bookings_room_dates  ON bookings (room_type_id, check_in, check_out);
+CREATE INDEX idx_reviews_hotel        ON reviews (hotel_id);
+CREATE INDEX idx_notifications_user   ON notifications (user_id, is_read);
