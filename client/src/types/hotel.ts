@@ -4,4 +4,5 @@ export type Hotel = {
   city: string;
   country: string;
   star_rating: number;
+  min_price: string | null;
 };
