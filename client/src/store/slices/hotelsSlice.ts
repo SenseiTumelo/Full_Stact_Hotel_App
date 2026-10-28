@@ -15,7 +15,7 @@ const initialState: HotelsState = {
 };
 
 // The thunk: calls the API. Redux creates pending/fulfilled/rejected actions for us.
-export const loadHotels = createAsyncThunk('hotels/load', async (search: HotelSearch = {}) => {
+export const loadHotels = createAsyncThunk('hotels/load', async (search: HotelSearch | undefined) => {
   return await fetchHotels(search);
 });
 
