@@ -9,10 +9,8 @@ export default function Home() {
   const { items, status, error } = useAppSelector((state) => state.hotels);
 
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(loadHotels());
-    }
-  }, [status, dispatch]);
+      dispatch(loadHotels({}));
+  }, [dispatch]);
 
   return (
     <div className="container" style={{ paddingTop: 32 }}>
