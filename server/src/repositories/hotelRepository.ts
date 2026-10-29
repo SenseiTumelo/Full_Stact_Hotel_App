@@ -37,3 +37,37 @@ export async function findAllHotels(filters: HotelFilters = {}) {
   );
   return result.rows;
 }
+
+export async function findHotelById(id: string) {
+  const hotelResult = await pool.query(
+    `SELECT id, name, description, address, city, country,
+            latitude, longitude, star_rating, policies
+     FROM hotels WHERE id = $1`,
+    [id]
+  );
+
+  if (hotelResult.rows.length === 0) return null;
+
+  // Run the three related queries at the same time
+  const [images, amenities, rooms] = await Promise.all([
+    pool.query('SELECT id, url FROM hotel_images WHERE hotel_id = $1 ORDER BY position', [id]),
+    pool.query(
+      `SELECT a.name FROM amenities a
+       JOIN hotel_amenities ha ON ha.amenity_id = a.id
+       WHERE ha.hotel_id = $1 ORDER BY a.name`,
+      [id]
+    ),
+    pool.query(
+      `SELECT id, name, capacity, price_per_night, currency, description
+       FROM room_types WHERE hotel_id = $1 ORDER BY price_per_night`,
+      [id]
+    ),
+  ]);
+
+  return {
+    ...hotelResult.rows[0],
+    images: images.rows,
+    amenities: amenities.rows.map((row) => row.name),
+    room_types: rooms.rows,
+  };
+}
