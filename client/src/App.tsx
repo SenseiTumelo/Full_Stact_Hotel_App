@@ -1,7 +1,7 @@
 import { Routes, Route, Link } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
-import HotelDetailsPage from '../pages/HotelDetailsPage';
+import HotelDetailsPage from './pages/HotelDetailsPage';
 import Text from './components/ui/Text';
 
 function NotFound() {
