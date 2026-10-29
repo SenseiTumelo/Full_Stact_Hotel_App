@@ -71,7 +71,7 @@ a { color: inherit; text-decoration: none; }
   color: #fff;
   background:
     linear-gradient(rgba(29, 28, 24, 0.5), rgba(29, 28, 24, 0.5)),
-    linear-gradient(135deg, #8a7a55, #3d3626);
+url('/hero.jpg');
   background-size: cover;
   background-position: center;
 }
