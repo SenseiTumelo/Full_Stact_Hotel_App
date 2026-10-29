@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchHotels } from '../../services/api';
+import { fetchHotels, type HotelSearch } from '../../services/api';
 import type { Hotel } from '../../types/hotel';
 
 type HotelsState = {
@@ -15,8 +15,8 @@ const initialState: HotelsState = {
 };
 
 // The thunk: calls the API. Redux creates pending/fulfilled/rejected actions for us.
-export const loadHotels = createAsyncThunk('hotels/load', async () => {
-  return await fetchHotels();
+export const loadHotels = createAsyncThunk('hotels/load', async (search: HotelSearch | undefined) => {
+  return await fetchHotels(search);
 });
 
 const hotelsSlice = createSlice({
