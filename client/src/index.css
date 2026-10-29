@@ -10,7 +10,7 @@
   --color-ink: #1d1c18;         /* main text */
   --color-muted: #6b695f;       /* helper text */
   --color-border: #ddd8c8;
-  --radius: 12px;
+  --radius: 1px;
   --radius-lg: 16px;
 }
 
