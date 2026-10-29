@@ -2,7 +2,7 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="container navbar-inner">
-        <a href="/" className="brand">STAY.</a>
+        <a href="/" className="brand">HotelApp</a>
 
         <nav className="nav-links" aria-label="Main">
           <a href="/" aria-current="page">Explore</a>
