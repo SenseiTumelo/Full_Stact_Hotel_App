@@ -6,6 +6,7 @@ import Breadcrumbs from '../components/layout/Breadcrumbs';
 import RoomCard from '../components/hotel/RoomCard';
 import Text from '../components/ui/Text';
 import Button from '../components/ui/Button';
+import ImageGallery from '../components/hotel/ImageGallery';
 
 export default function HotelDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -42,13 +43,12 @@ export default function HotelDetailsPage() {
       />
       <h1 className="page-title">{hotel.name}</h1>
       <p className="page-subtitle">
-        {hotel.city} · {'★'.repeat(hotel.star_rating)}
+        {hotel.city} · {'*'.repeat(hotel.star_rating)}
       </p>
 
       <div className="details-grid">
-        <div className="details-image">
-          {hotel.images[0] ? <img src={hotel.images[0].url} alt={hotel.name} /> : 'Photo'}
-        </div>
+       
+       <ImageGallery images={hotel.images} alt={hotel.name} />
 
         <aside className="details-card">
           <h2>A stay made for slowing down</h2>
