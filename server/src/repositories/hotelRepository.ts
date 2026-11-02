@@ -27,7 +27,8 @@ export async function findAllHotels(filters: HotelFilters = {}) {
 
   const result = await pool.query(
     `SELECT h.id, h.name, h.city, h.country, h.star_rating,
-            MIN(rt.price_per_night) AS min_price
+        MIN(rt.price_per_night) AS min_price,
+        (SELECT url FROM hotel_images WHERE hotel_id = h.id ORDER BY position LIMIT 1) AS cover_image
      FROM hotels h
      LEFT JOIN room_types rt ON rt.hotel_id = h.id
      ${where}
