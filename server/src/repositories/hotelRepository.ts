@@ -37,3 +37,74 @@ export async function findAllHotels(filters: HotelFilters = {}) {
   );
   return result.rows;
 }
+
+export async function findHotelById(id: string) {
+  const hotelResult = await pool.query(
+    `SELECT id, name, description, address, city, country,
+            latitude, longitude, star_rating, policies
+     FROM hotels WHERE id = $1`,
+    [id]
+  );
+
+  if (hotelResult.rows.length === 0) return null;
+
+  // Run the three related queries at the same time
+  const [images, amenities, rooms] = await Promise.all([
+    pool.query('SELECT id, url FROM hotel_images WHERE hotel_id = $1 ORDER BY position', [id]),
+    pool.query(
+      `SELECT a.name FROM amenities a
+       JOIN hotel_amenities ha ON ha.amenity_id = a.id
+       WHERE ha.hotel_id = $1 ORDER BY a.name`,
+      [id]
+    ),
+    pool.query(
+      `SELECT id, name, capacity, price_per_night, currency, description
+       FROM room_types WHERE hotel_id = $1 ORDER BY price_per_night`,
+      [id]
+    ),
+  ]);
+
+  return {
+    ...hotelResult.rows[0],
+    images: images.rows,
+    amenities: amenities.rows.map((row) => row.name),
+    room_types: rooms.rows,
+  };
+}
+
+export async function hotelExists(id: string) {
+  const result = await pool.query('SELECT 1 FROM hotels WHERE id = $1', [id]);
+  return result.rows.length > 0;
+}
+
+export async function addHotelImages(hotelId: string, urls: string[]) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const last = await client.query(
+      'SELECT COALESCE(MAX(position), -1) AS last FROM hotel_images WHERE hotel_id = $1',
+      [hotelId]
+    );
+    let position = Number(last.rows[0].last);
+
+    const inserted = [];
+    for (const url of urls) {
+      position += 1;
+      const result = await client.query(
+        `INSERT INTO hotel_images (hotel_id, url, position)
+         VALUES ($1, $2, $3) RETURNING id, url, position`,
+        [hotelId, url, position]
+      );
+      inserted.push(result.rows[0]);
+    }
+
+    await client.query('COMMIT');
+    return inserted;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
