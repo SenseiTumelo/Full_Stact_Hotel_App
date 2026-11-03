@@ -221,3 +221,4 @@ url('/hero.jpg');
   .auth-image { min-height: 200px; }
   .auth-card { padding: 28px; }
 }
+.thumb-active { border-color: var(--color-primary); }
