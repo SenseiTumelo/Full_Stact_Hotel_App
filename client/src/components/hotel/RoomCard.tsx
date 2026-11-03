@@ -2,7 +2,21 @@ import type { RoomType } from '../../types/hotel';
 import Text from '../ui/Text';
 import Button from '../ui/Button';
 
-export default function RoomCard({ room }: { room: RoomType }) {
+type RoomCardProps = {
+  room: RoomType;
+  actionLabel?: string;
+  onSelect?: () => void;
+  disabled?: boolean;
+  note?: string;
+};
+
+export default function RoomCard({
+  room,
+  actionLabel = 'Select room',
+  onSelect,
+  disabled = false,
+  note,
+}: RoomCardProps) {
   return (
     <article className="room-card">
       <div className="room-image">Photo</div>
@@ -12,9 +26,10 @@ export default function RoomCard({ room }: { room: RoomType }) {
         <Text variant="caption">Sleeps {room.capacity}</Text>
       </div>
       <div className="room-price">
-        <Text variant="caption">1 night</Text>
+        <Text variant="caption">per night</Text>
         <strong className="price">R{Number(room.price_per_night).toLocaleString('en-ZA')}</strong>
-        <Button>Select room</Button>
+        <Button onClick={onSelect} disabled={disabled}>{actionLabel}</Button>
+        {note && <Text variant="caption">{note}</Text>}
       </div>
     </article>
   );
