@@ -9,6 +9,9 @@ import { loadCurrentUser } from './store/slices/authSlice';
 import AuthPage from './pages/AuthPage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import MyTrips from './pages/MyTrips';
+import BookingConfirmedPage from './pages/BookingConfirmatedPage';
+import BookingDetailsPage from './pages/BookingDatesPage';
+import BookingDatesPage from './pages/BookingDatesPage';
 
 function NotFound() {
   return (
@@ -34,6 +37,18 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/register" element={<AuthPage mode="register" />} />
+        <Route
+          path="/hotels/:id/book"
+          element={<ProtectedRoute><BookingDatesPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/booking/details"
+          element={<ProtectedRoute><BookingDetailsPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/booking/confirmed"
+          element={<ProtectedRoute><BookingConfirmedPage /></ProtectedRoute>}
+        />
         <Route
           path="/my-trips"
           element={

@@ -1,150 +1,174 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { submitBooking } from '../store/slices/bookingSlice';
+import { loadHotelById } from '../store/slices/hotelsSlice';
+import { loadAvailability, setDraft } from '../store/slices/bookingSlice';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
 import StepIndicator from '../components/bookings/StepIndicator';
-import SummaryCard from '../components/bookings/SummaryCard';
-import Button from '../components/ui/Button';
+import RoomCard from '../components/hotel/RoomCard';
+import Text from '../components/ui/Text';
+import type { RoomType } from '../types/hotel';
+import { nightsBetween, todayIso } from '../utils/booking';
 
-export default function BookingDetailsPage() {
-  const dispatch = useAppDispatch();
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, Math.round(value) || min));
+
+export default function BookingDatesPage() {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { draft, submitStatus, submitError } = useAppSelector((state) => state.booking);
-  const user = useAppSelector((state) => state.auth.user);
+  const dispatch = useAppDispatch();
+  const { selected: hotel, selectedStatus } = useAppSelector((state) => state.hotels);
+  const { availability, availabilityStatus } = useAppSelector((state) => state.booking);
 
-  const [guestName, setGuestName] = useState(user?.full_name ?? '');
-  const [guestEmail, setGuestEmail] = useState(user?.email ?? '');
-  const [guestPhone, setGuestPhone] = useState('');
-  const [wantsRequest, setWantsRequest] = useState(false);
-  const [specialRequest, setSpecialRequest] = useState('');
+  const today = todayIso();
+  const [checkIn, setCheckIn] = useState('');
+  const [checkOut, setCheckOut] = useState('');
+  const [rooms, setRooms] = useState(1);
+  const [guests, setGuests] = useState(2);
 
-  // Someone who opens this page directly has not chosen a room yet
-  if (!draft) return <Navigate to="/" replace />;
+  const datesValid =
+    checkIn >= today && checkOut > checkIn && nightsBetween(checkIn, checkOut) <= 30;
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
+  useEffect(() => {
+    if (id) dispatch(loadHotelById(id));
+  }, [id, dispatch]);
 
-    const result = await dispatch(
-      submitBooking({
-        roomTypeId: draft.roomTypeId,
-        checkIn: draft.checkIn,
-        checkOut: draft.checkOut,
-        rooms: draft.rooms,
-        guests: draft.guests,
-        guestName: guestName.trim(),
-        guestEmail: guestEmail.trim(),
-        guestPhone: guestPhone.trim(),
-        specialRequest: wantsRequest && specialRequest.trim() ? specialRequest.trim() : undefined,
+  useEffect(() => {
+    if (id && datesValid) dispatch(loadAvailability({ hotelId: id, checkIn, checkOut }));
+  }, [id, checkIn, checkOut, datesValid, dispatch]);
+
+  if (selectedStatus === 'failed') {
+    return (
+      <main className="container section">
+        <Text variant="heading">Hotel not found</Text>
+        <p><Link to="/">Back to all stays</Link></p>
+      </main>
+    );
+  }
+  if (!hotel || hotel.id !== id) {
+    return <main className="container section"><Text>Loading...</Text></main>;
+  }
+
+  const roomsLeft = (roomId: string) =>
+    availability.find((item) => item.room_type_id === roomId)?.available ?? 0;
+
+  function selectRoom(room: RoomType) {
+    if (!hotel) return;
+    dispatch(
+      setDraft({
+        hotelId: hotel.id,
+        hotelName: hotel.name,
+        roomTypeId: room.id,
+        roomName: room.name,
+        pricePerNight: room.price_per_night,
+        checkIn,
+        checkOut,
+        rooms,
+        guests,
       })
     );
+    navigate('/booking/details');
+  }
 
-    if (submitBooking.fulfilled.match(result)) navigate('/booking/confirmed');
-  };
+  function roomState(room: RoomType): { disabled: boolean; note?: string } {
+    if (!datesValid) return { disabled: true, note: 'Choose your dates first' };
+    if (availabilityStatus !== 'succeeded') return { disabled: true };
+
+    const left = roomsLeft(room.id);
+    if (left === 0) return { disabled: true, note: 'Sold out for these dates' };
+    if (left < rooms) return { disabled: true, note: `Only ${left} left` };
+    if (guests > room.capacity * rooms) {
+      return { disabled: true, note: `Sleeps ${room.capacity} per room` };
+    }
+    return { disabled: false, note: left <= 3 ? `Only ${left} left` : undefined };
+  }
 
   return (
     <main className="container section">
       <Breadcrumbs
         items={[
           { label: 'Hotels', to: '/' },
-          { label: draft.hotelName, to: `/hotels/${draft.hotelId}` },
-          { label: 'Guest details' },
+          { label: hotel.name, to: `/hotels/${hotel.id}` },
+          { label: 'Dates & rooms' },
         ]}
       />
-      <h1 className="page-title">Complete your reservation</h1>
-      <p className="page-subtitle">Add the lead guest's details to confirm the room.</p>
+      <h1 className="page-title">Choose your dates and room</h1>
+      <p className="page-subtitle">{hotel.name} · {hotel.city}</p>
 
-      <StepIndicator current={2} />
+      <StepIndicator current={1} />
 
-      <div className="booking-layout">
-        <form className="form-card" onSubmit={handleSubmit}>
-          <h2>Guest information</h2>
+      <form className="search-bar" onSubmit={(event) => event.preventDefault()}>
+        <div className="field">
+          <label htmlFor="checkIn">Check-in</label>
+          <input
+            id="checkIn"
+            type="date"
+            min={today}
+            value={checkIn}
+            onChange={(event) => {
+              setCheckIn(event.target.value);
+              if (checkOut && event.target.value >= checkOut) setCheckOut('');
+            }}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="checkOut">Check-out</label>
+          <input
+            id="checkOut"
+            type="date"
+            min={checkIn || today}
+            value={checkOut}
+            onChange={(event) => setCheckOut(event.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="rooms">Rooms</label>
+          <input
+            id="rooms"
+            type="number"
+            min={1}
+            max={10}
+            value={rooms}
+            onChange={(event) => setRooms(clamp(Number(event.target.value), 1, 10))}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="guests">Guests</label>
+          <input
+            id="guests"
+            type="number"
+            min={1}
+            max={20}
+            value={guests}
+            onChange={(event) => setGuests(clamp(Number(event.target.value), 1, 20))}
+          />
+        </div>
+      </form>
 
-          <div className="field">
-            <label htmlFor="guestName">First and last name</label>
-            <input
-              id="guestName"
-              required
-              minLength={2}
-              maxLength={100}
-              autoComplete="name"
-              placeholder="As shown on your ID"
-              value={guestName}
-              onChange={(event) => setGuestName(event.target.value)}
+      <div style={{ margin: '16px 0' }} aria-live="polite">
+        {!datesValid && (
+          <Text variant="caption">Pick a check-in and check-out date (up to 30 nights) to see what is available.</Text>
+        )}
+        {datesValid && availabilityStatus === 'loading' && <Text variant="caption">Checking availability...</Text>}
+        {datesValid && availabilityStatus === 'failed' && (
+          <Text variant="caption">Could not check availability. Please try again.</Text>
+        )}
+      </div>
+
+      <div className="room-list">
+        {hotel.room_types.map((room) => {
+          const state = roomState(room);
+          return (
+            <RoomCard
+              key={room.id}
+              room={room}
+              actionLabel="Select room"
+              onSelect={() => selectRoom(room)}
+              disabled={state.disabled}
+              note={state.note}
             />
-          </div>
-
-          <div className="field">
-            <label htmlFor="guestEmail">Email address</label>
-            <input
-              id="guestEmail"
-              type="email"
-              required
-              autoComplete="email"
-              placeholder="name@example.com"
-              value={guestEmail}
-              onChange={(event) => setGuestEmail(event.target.value)}
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="guestPhone">Phone number</label>
-            <input
-              id="guestPhone"
-              type="tel"
-              required
-              autoComplete="tel"
-              pattern="\+?[0-9 \(\)\-]{7,20}"
-              title="Enter a phone number, for example +27 82 123 4567"
-              placeholder="+27 82 123 4567"
-              value={guestPhone}
-              onChange={(event) => setGuestPhone(event.target.value)}
-            />
-          </div>
-
-          <label className="checkbox-row">
-            <input
-              type="checkbox"
-              checked={wantsRequest}
-              onChange={(event) => setWantsRequest(event.target.checked)}
-            />
-            Add a special request
-          </label>
-
-          {wantsRequest && (
-            <div className="field">
-              <label htmlFor="specialRequest">Special request</label>
-              <textarea
-                id="specialRequest"
-                maxLength={500}
-                value={specialRequest}
-                onChange={(event) => setSpecialRequest(event.target.value)}
-              />
-              <span className="summary-muted">Requests are not guaranteed, but the hotel will do its best.</span>
-            </div>
-          )}
-
-          {submitError && <p role="alert" className="form-error">{submitError}</p>}
-
-          <Button type="submit" variant="dark" disabled={submitStatus === 'loading'}>
-            {submitStatus === 'loading' ? 'Booking...' : 'Confirm booking'}
-          </Button>
-
-          <Link to={`/hotels/${draft.hotelId}/book`} className="summary-muted">
-            ← Change dates or room
-          </Link>
-        </form>
-
-        <SummaryCard
-          hotelName={draft.hotelName}
-          roomName={draft.roomName}
-          checkIn={draft.checkIn}
-          checkOut={draft.checkOut}
-          rooms={draft.rooms}
-          guests={draft.guests}
-          pricePerNight={draft.pricePerNight}
-        />
+          );
+        })}
       </div>
     </main>
   );
