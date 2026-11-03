@@ -5,6 +5,7 @@ export type Hotel = {
   country: string;
   star_rating: number;
   min_price: string | null; //this is a string instead of a number because postgresql send numeric values as text.
+  cover_image: string | null;
 };
 
 export type RoomType = {
