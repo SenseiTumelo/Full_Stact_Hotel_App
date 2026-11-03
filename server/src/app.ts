@@ -9,6 +9,9 @@ import { env } from './config/env';
 import './config/passport';
 import authRoutes from './routes/authRoutes';
 import hotelRoutes from './routes/hotelRoutes';
+import bookingRoutes from './routes/bookingRoutes';
+
+
 
 const app = express();
 
@@ -26,6 +29,7 @@ app.get('/api/v1/health', (_req, res) => {
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/hotels', hotelRoutes);
+app.use('/api/v1/bookings', bookingRoutes);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof multer.MulterError || err.message.startsWith('Only')) {
