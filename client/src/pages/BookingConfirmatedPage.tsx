@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { clearDraft } from '../store/slices/bookingSlice';
-import StepIndicator from '../components/booking/StepIndicator';
+import StepIndicator from '../components/bookings/StepIndicator';
 import { formatDate, formatPrice } from '../utils/booking';
 
 export default function BookingConfirmedPage() {
