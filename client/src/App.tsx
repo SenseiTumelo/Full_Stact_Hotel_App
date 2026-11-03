@@ -6,6 +6,9 @@ import Text from './components/ui/Text';
 import { useEffect } from 'react';
 import { useAppDispatch } from './store/hooks';
 import { loadCurrentUser } from './store/slices/authSlice';
+import AuthPage from './pages/AuthPage';
+import ProtectedRoute from './components/layout/ProtectedRoute';
+import MyTrips from './pages/MyTrips';
 
 function NotFound() {
   return (
@@ -17,7 +20,7 @@ function NotFound() {
 }
 
 export default function App() {
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(loadCurrentUser());
@@ -29,6 +32,16 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/hotels/:id" element={<HotelDetailsPage />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/login" element={<AuthPage mode="login" />} />
+        <Route path="/register" element={<AuthPage mode="register" />} />
+        <Route
+          path="/my-trips"
+          element={
+            <ProtectedRoute>
+              <MyTrips />
+            </ProtectedRoute>
+          }
+        />
       </Route>
     </Routes>
   );
