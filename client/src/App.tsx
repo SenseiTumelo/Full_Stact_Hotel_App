@@ -3,6 +3,9 @@ import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import HotelDetailsPage from './pages/HotelDetailsPage';
 import Text from './components/ui/Text';
+import { useEffect } from 'react';
+import { useAppDispatch } from './store/hooks';
+import { loadCurrentUser } from './store/slices/authSlice';
 
 function NotFound() {
   return (
@@ -14,6 +17,12 @@ function NotFound() {
 }
 
 export default function App() {
+    const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(loadCurrentUser());
+  }, [dispatch]);
+
   return (
     <Routes>
       <Route element={<Layout />}>
