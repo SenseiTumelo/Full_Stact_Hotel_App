@@ -10,6 +10,8 @@ import './config/passport';
 import authRoutes from './routes/authRoutes';
 import hotelRoutes from './routes/hotelRoutes';
 import bookingRoutes from './routes/bookingRoutes';
+import paymentRoutes from './routes/paymentRoutes';
+import { stripeWebhook } from './controllers/paymentController';
 
 
 
@@ -17,7 +19,11 @@ const app = express();
 
 // Only our React app may call the API, and cookies are allowed
 app.use(cors({ origin: env.clientUrl, credentials: true }));
+// The webhook needs the raw, unparsed body so the signature check works.
+app.post('/api/v1/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+
 app.use(express.json());
+
 app.use(cookieParser());
 app.use(passport.initialize());
 
@@ -26,7 +32,7 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.get('/api/v1/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
-
+app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/hotels', hotelRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
