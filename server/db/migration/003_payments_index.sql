@@ -1,0 +1,1 @@
+CREATE INDEX idx_payments_booking ON payments (booking_id);
