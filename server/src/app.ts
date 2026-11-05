@@ -12,6 +12,10 @@ import hotelRoutes from './routes/hotelRoutes';
 import bookingRoutes from './routes/bookingRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import { stripeWebhook } from './controllers/paymentController';
+import adminRoutes from './routes/adminRoutes';
+import { getAmenities } from './controllers/hotelController';
+
+
 
 
 
@@ -36,6 +40,8 @@ app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/hotels', hotelRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
+app.get('/api/v1/amenities', getAmenities);
+app.use('/api/v1/admin', adminRoutes);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof multer.MulterError || err.message.startsWith('Only')) {
