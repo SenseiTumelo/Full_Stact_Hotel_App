@@ -5,7 +5,6 @@ import Hero from '../components/layout/Hero';
 import SearchBar from '../components/hotel/SearchBar';
 import HotelCard from '../components/hotel/HotelCard';
 import Text from '../components/ui/Text';
-import { Link, NavLink } from 'react-router-dom';
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -17,22 +16,6 @@ export default function Home() {
 
   return (
     <>
-    <header className="navbar">
-      <div className="container navbar-inner">
-        <Link to="/" className="brand">H.A</Link>
-
-        <nav className="nav-links" aria-label="Main">
-          <NavLink to="/" end>Explore</NavLink>
-          <a href="#">My trips</a>
-          <a href="#">About</a>
-        </nav>
-
-        <div className="nav-right">
-          <a href="#">Help</a>
-          <span className="avatar" aria-label="Account">T</span>
-        </div>
-      </div>
-    </header>
       <Hero
         title="Find a stay that feels like yours"
         subtitle="Good places, thoughtful stays, and a little room to unwind."
