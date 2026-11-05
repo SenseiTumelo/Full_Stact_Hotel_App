@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Hotel, HotelDetails } from '../types/hotel';
+import type { Amenity, Hotel, HotelDetails, HotelInput, RoomTypeInput } from '../types/hotel';
 import type { User } from '../types/user';
 import type { Booking, BookingPayload, RoomAvailability } from '../types/booking';
 
@@ -61,4 +61,46 @@ export async function createPaymentIntentRequest(
 ): Promise<{ clientSecret: string; amount: number; currency: string }> {
   const response = await api.post('/payments/intent', { bookingId });
   return response.data;
+}
+
+export async function fetchAmenities(): Promise<Amenity[]> {
+  const response = await api.get('/amenities');
+  return response.data;
+}
+
+export async function createHotelRequest(input: HotelInput): Promise<HotelDetails> {
+  const response = await api.post('/admin/hotels', input);
+  return response.data;
+}
+
+export async function updateHotelRequest(id: string, input: HotelInput): Promise<HotelDetails> {
+  const response = await api.patch(`/admin/hotels/${id}`, input);
+  return response.data;
+}
+
+export async function deleteHotelRequest(id: string): Promise<void> {
+  await api.delete(`/admin/hotels/${id}`);
+}
+
+export async function uploadHotelImagesRequest(hotelId: string, files: File[]): Promise<void> {
+  const data = new FormData();
+  files.forEach((file) => data.append('images', file));
+  // Do not set Content-Type yourself: the browser adds the correct one with the file boundary
+  await api.post(`/hotels/${hotelId}/images`, data, { timeout: 60000 });
+}
+
+export async function deleteHotelImageRequest(hotelId: string, imageId: string): Promise<void> {
+  await api.delete(`/admin/hotels/${hotelId}/images/${imageId}`);
+}
+
+export async function createRoomTypeRequest(hotelId: string, input: RoomTypeInput): Promise<void> {
+  await api.post(`/admin/hotels/${hotelId}/room-types`, input);
+}
+
+export async function updateRoomTypeRequest(id: string, input: RoomTypeInput): Promise<void> {
+  await api.patch(`/admin/room-types/${id}`, input);
+}
+
+export async function deleteRoomTypeRequest(id: string): Promise<void> {
+  await api.delete(`/admin/room-types/${id}`);
 }

@@ -15,6 +15,7 @@ export type RoomType = {
   price_per_night: string;
   currency: string;
   description: string | null;
+  total_rooms: number;
 };
 
 export type HotelDetails = {
@@ -31,4 +32,28 @@ export type HotelDetails = {
   images: { id: string; url: string }[];
   amenities: string[];
   room_types: RoomType[];
+  amenity_ids: number[];
+};
+
+export type Amenity = { id: number; name: string };
+
+export type HotelInput = {
+  name: string;
+  description: string;
+  address: string;
+  city: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  starRating: number;
+  policies: string;
+  amenityIds: number[];
+};
+
+export type RoomTypeInput = {
+  name: string;
+  description: string;
+  capacity: number;
+  pricePerNight: number;
+  totalRooms: number;
 };
