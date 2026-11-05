@@ -304,3 +304,18 @@ url('/hero.jpg');
 .pay-option:has(input:checked) { border-color: var(--color-dark); background: var(--color-bg); }
 .pay-option input { width: 20px; height: 20px; margin-top: 2px; }
 .pay-form { display: grid; gap: 16px; }
+
+/* Your stay panel */
+.stay-panel { position: sticky; top: 24px; padding: 24px; }
+.room-card-selected { outline: 2px solid var(--color-dark); }
+
+@media (max-width: 800px) {
+  /* On phones the panel sticks to the bottom of the screen so the button is always reachable */
+  .stay-panel {
+    top: auto;
+    bottom: 0;
+    z-index: 5;
+    padding: 16px;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+  }
+}
