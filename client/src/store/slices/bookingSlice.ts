@@ -22,6 +22,7 @@ type BookingState = {
   mine: Booking[];
   mineStatus: Status;
   mineError: string | null;
+  paidOnline: boolean;
 };
 
 const initialState: BookingState = {
@@ -35,6 +36,7 @@ const initialState: BookingState = {
   mine: [],
   mineStatus: 'idle',
   mineError: null,
+  paidOnline: false,
 };
 
 export const loadAvailability = createAsyncThunk(
@@ -88,6 +90,9 @@ const bookingSlice = createSlice({
     clearDraft(state) {
       state.draft = null;
     },
+       markPaidOnline(state) {
+     state.paidOnline = true;
+   },
   },
   extraReducers: (builder) => {
     builder
@@ -110,6 +115,7 @@ const bookingSlice = createSlice({
       .addCase(submitBooking.pending, (state) => {
         state.submitStatus = 'loading';
         state.submitError = null;
+        state.paidOnline
       })
       .addCase(submitBooking.fulfilled, (state, action) => {
         state.submitStatus = 'succeeded';
@@ -142,5 +148,5 @@ const bookingSlice = createSlice({
   },
 });
 
-export const { setDraft, clearDraft } = bookingSlice.actions;
+export const { setDraft, clearDraft, markPaidOnline } = bookingSlice.actions;
 export default bookingSlice.reducer;
