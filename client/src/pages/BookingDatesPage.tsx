@@ -7,11 +7,14 @@ import Breadcrumbs from '../components/layout/Breadcrumbs';
 import StepIndicator from '../components/bookings/StepIndicator';
 import RoomCard from '../components/hotel/RoomCard';
 import Text from '../components/ui/Text';
+import Button from '../components/ui/Button';
 import type { RoomType } from '../types/hotel';
-import { nightsBetween, todayIso } from '../utils/booking';
+import { formatDate, formatPrice, nightsBetween, todayIso, totalPrice } from '../utils/booking';
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.round(value) || min));
+
+const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
 
 export default function BookingDatesPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +28,7 @@ export default function BookingDatesPage() {
   const [checkOut, setCheckOut] = useState('');
   const [rooms, setRooms] = useState(1);
   const [guests, setGuests] = useState(2);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
   const datesValid =
     checkIn >= today && checkOut > checkIn && nightsBetween(checkIn, checkOut) <= 30;
@@ -52,24 +56,6 @@ export default function BookingDatesPage() {
   const roomsLeft = (roomId: string) =>
     availability.find((item) => item.room_type_id === roomId)?.available ?? 0;
 
-  function selectRoom(room: RoomType) {
-    if (!hotel) return;
-    dispatch(
-      setDraft({
-        hotelId: hotel.id,
-        hotelName: hotel.name,
-        roomTypeId: room.id,
-        roomName: room.name,
-        pricePerNight: room.price_per_night,
-        checkIn,
-        checkOut,
-        rooms,
-        guests,
-      })
-    );
-    navigate('/booking/details');
-  }
-
   function roomState(room: RoomType): { disabled: boolean; note?: string } {
     if (!datesValid) return { disabled: true, note: 'Choose your dates first' };
     if (availabilityStatus !== 'succeeded') return { disabled: true };
@@ -81,6 +67,35 @@ export default function BookingDatesPage() {
       return { disabled: true, note: `Sleeps ${room.capacity} per room` };
     }
     return { disabled: false, note: left <= 3 ? `Only ${left} left` : undefined };
+  }
+
+  // Everything below is calculated from the state above, so it can never go out of date
+  const selectedRoom = hotel.room_types.find((room) => room.id === selectedRoomId) ?? null;
+  const selectedState = selectedRoom ? roomState(selectedRoom) : null;
+  const nights = datesValid ? nightsBetween(checkIn, checkOut) : 0;
+  const canContinue = datesValid && selectedRoom !== null && selectedState !== null && !selectedState.disabled;
+
+  let helper = '';
+  if (!datesValid) helper = 'Choose your check-in and check-out dates.';
+  else if (!selectedRoom) helper = 'Select a room to continue.';
+  else if (selectedState?.disabled) helper = selectedState.note ?? 'Checking availability...';
+
+  function continueToDetails() {
+    if (!hotel || !selectedRoom || !canContinue) return;
+    dispatch(
+      setDraft({
+        hotelId: hotel.id,
+        hotelName: hotel.name,
+        roomTypeId: selectedRoom.id,
+        roomName: selectedRoom.name,
+        pricePerNight: selectedRoom.price_per_night,
+        checkIn,
+        checkOut,
+        rooms,
+        guests,
+      })
+    );
+    navigate('/booking/details');
   }
 
   return (
@@ -97,78 +112,120 @@ export default function BookingDatesPage() {
 
       <StepIndicator current={1} />
 
-      <form className="search-bar" onSubmit={(event) => event.preventDefault()}>
-        <div className="field">
-          <label htmlFor="checkIn">Check-in</label>
-          <input
-            id="checkIn"
-            type="date"
-            min={today}
-            value={checkIn}
-            onChange={(event) => {
-              setCheckIn(event.target.value);
-              if (checkOut && event.target.value >= checkOut) setCheckOut('');
-            }}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="checkOut">Check-out</label>
-          <input
-            id="checkOut"
-            type="date"
-            min={checkIn || today}
-            value={checkOut}
-            onChange={(event) => setCheckOut(event.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="rooms">Rooms</label>
-          <input
-            id="rooms"
-            type="number"
-            min={1}
-            max={10}
-            value={rooms}
-            onChange={(event) => setRooms(clamp(Number(event.target.value), 1, 10))}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="guests">Guests</label>
-          <input
-            id="guests"
-            type="number"
-            min={1}
-            max={20}
-            value={guests}
-            onChange={(event) => setGuests(clamp(Number(event.target.value), 1, 20))}
-          />
-        </div>
-      </form>
+      <div className="booking-layout">
+        <div>
+          <form className="search-bar" onSubmit={(event) => event.preventDefault()}>
+            <div className="field">
+              <label htmlFor="checkIn">Check-in</label>
+              <input
+                id="checkIn"
+                type="date"
+                min={today}
+                value={checkIn}
+                onChange={(event) => {
+                  setCheckIn(event.target.value);
+                  if (checkOut && event.target.value >= checkOut) setCheckOut('');
+                }}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="checkOut">Check-out</label>
+              <input
+                id="checkOut"
+                type="date"
+                min={checkIn || today}
+                value={checkOut}
+                onChange={(event) => setCheckOut(event.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="rooms">Rooms</label>
+              <input
+                id="rooms"
+                type="number"
+                min={1}
+                max={10}
+                value={rooms}
+                onChange={(event) => setRooms(clamp(Number(event.target.value), 1, 10))}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="guests">Guests</label>
+              <input
+                id="guests"
+                type="number"
+                min={1}
+                max={20}
+                value={guests}
+                onChange={(event) => setGuests(clamp(Number(event.target.value), 1, 20))}
+              />
+            </div>
+          </form>
 
-      <div style={{ margin: '16px 0' }} aria-live="polite">
-        {!datesValid && (
-          <Text variant="caption">Pick a check-in and check-out date (up to 30 nights) to see what is available.</Text>
-        )}
-        {datesValid && availabilityStatus === 'loading' && <Text variant="caption">Checking availability...</Text>}
-        {datesValid && availabilityStatus === 'failed' && (
-          <Text variant="caption">Could not check availability. Please try again.</Text>
-        )}
-      </div>
+          <div style={{ margin: '16px 0' }} aria-live="polite">
+            {datesValid && availabilityStatus === 'loading' && (
+              <Text variant="caption">Checking availability...</Text>
+            )}
+            {datesValid && availabilityStatus === 'failed' && (
+              <Text variant="caption">Could not check availability. Please try again.</Text>
+            )}
+          </div>
 
-      <div className="room-list">
-        {hotel.room_types.map((room) => {
-          const state = roomState(room);
-          return (
-            <RoomCard
-              key={room.id}
-              room={room}
-              actionLabel="Select room"
-              onSelect={() => selectRoom(room)}
-              disabled={state.disabled}
-              note={state.note}
-            />
-          );
-        })}
+          <div className="room-list">
+            {hotel.room_types.map((room) => {
+              const state = roomState(room);
+              return (
+                <RoomCard
+                  key={room.id}
+                  room={room}
+                  selected={room.id === selectedRoomId}
+                  disabled={state.disabled}
+                  note={state.note}
+                  onSelect={() => setSelectedRoomId(room.id)}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        <aside className="summary-card stay-panel" aria-label="Your stay">
+          <p className="eyebrow">Your stay</p>
+          <h2>{hotel.name}</h2>
+
+          <div className="summary-dates">
+            <div>
+              <span className="eyebrow">Check-in</span>
+              <strong>{checkIn ? formatDate(checkIn) : '—'}</strong>
+            </div>
+            <div>
+              <span className="eyebrow">Check-out</span>
+              <strong>{checkOut ? formatDate(checkOut) : '—'}</strong>
+            </div>
+          </div>
+
+          <p className="summary-muted">
+            {datesValid ? plural(nights, 'night') : 'Dates not chosen'} · {plural(guests, 'guest')} · {plural(rooms, 'room')}
+          </p>
+
+          {selectedRoom && datesValid && (
+            <>
+              <hr />
+              <div className="summary-row">
+                <span>{selectedRoom.name}</span>
+                <span>{formatPrice(selectedRoom.price_per_night)} / night</span>
+              </div>
+              <div className="summary-row summary-total">
+                <span>Total</span>
+                <span>{formatPrice(totalPrice(selectedRoom.price_per_night, nights, rooms))}</span>
+              </div>
+            </>
+          )}
+
+          <Button variant="dark" disabled={!canContinue} onClick={continueToDetails}>
+            Continue to guest details
+          </Button>
+          {helper && <p className="summary-muted" aria-live="polite">{helper}</p>}
+        </aside>
       </div>
     </main>
   );
