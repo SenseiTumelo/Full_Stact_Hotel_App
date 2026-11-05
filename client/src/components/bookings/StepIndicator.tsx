@@ -1,6 +1,6 @@
-const STEPS = ['Dates & rooms', 'Guest details', 'Confirmation'];
+const STEPS = ['Dates & rooms', 'Guest details', 'Payment', 'Confirmation'];
 
-export default function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
+export default function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
   return (
     <ol className="steps" aria-label="Booking progress">
       {STEPS.map((label, index) => {
