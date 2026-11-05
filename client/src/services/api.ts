@@ -56,3 +56,9 @@ export async function cancelBookingRequest(id: string): Promise<Booking> {
   const response = await api.patch(`/bookings/${id}/cancel`);
   return response.data;
 }
+export async function createPaymentIntentRequest(
+  bookingId: string
+): Promise<{ clientSecret: string; amount: number; currency: string }> {
+  const response = await api.post('/payments/intent', { bookingId });
+  return response.data;
+}

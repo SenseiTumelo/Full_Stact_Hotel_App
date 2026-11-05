@@ -19,6 +19,8 @@ export type Booking = {
   hotel_name: string;
   hotel_city: string;
   cover_image: string | null;
+  currency: string;
+  payment_status: 'pending' | 'paid' | 'failed' | 'refunded' | null;
 };
 
 export type RoomAvailability = { room_type_id: string; available: number };
