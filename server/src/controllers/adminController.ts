@@ -1,0 +1,165 @@
+import type { Request, Response } from 'express';
+import type { ZodError } from 'zod';
+import {
+  hotelSchema,
+  hotelUpdateSchema,
+  roomTypeSchema,
+  roomTypeUpdateSchema,
+} from '../schemas/hotelSchemas';
+import { findHotelById } from '../repositories/hotelRepository';
+import {
+  createHotel,
+  createRoomType,
+  deleteHotel,
+  deleteHotelImage,
+  deleteRoomType,
+  updateHotel,
+  updateRoomType,
+} from '../repositories/adminHotelRepository';
+import { removeUploadedFiles } from '../utils/files';
+import { sendError } from '../utils/httpError';
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function firstIssue(error: ZodError) {
+  const issue = error.issues[0];
+  return `${issue.path.join('.') || 'body'}: ${issue.message}`;
+}
+
+export async function createHotelHandler(req: Request, res: Response) {
+  const parsed = hotelSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ message: firstIssue(parsed.error) });
+    return;
+  }
+  try {
+    const id = await createHotel(parsed.data);
+    res.status(201).json(await findHotelById(id));
+  } catch (err) {
+    sendError(err, res);
+  }
+}
+
+export async function updateHotelHandler(req: Request, res: Response) {
+  const id = String(req.params.id);
+  if (!UUID_REGEX.test(id)) {
+    res.status(400).json({ message: 'Invalid hotel id' });
+    return;
+  }
+  const parsed = hotelUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ message: firstIssue(parsed.error) });
+    return;
+  }
+  try {
+    if (!(await updateHotel(id, parsed.data))) {
+      res.status(404).json({ message: 'Hotel not found' });
+      return;
+    }
+    res.json(await findHotelById(id));
+  } catch (err) {
+    sendError(err, res);
+  }
+}
+
+export async function deleteHotelHandler(req: Request, res: Response) {
+  const id = String(req.params.id);
+  if (!UUID_REGEX.test(id)) {
+    res.status(400).json({ message: 'Invalid hotel id' });
+    return;
+  }
+  try {
+    const imageUrls = await deleteHotel(id);
+    if (imageUrls === null) {
+      res.status(404).json({ message: 'Hotel not found' });
+      return;
+    }
+    await removeUploadedFiles(imageUrls);
+    res.status(204).send();
+  } catch (err) {
+    sendError(err, res);
+  }
+}
+
+export async function createRoomTypeHandler(req: Request, res: Response) {
+  const hotelId = String(req.params.id);
+  if (!UUID_REGEX.test(hotelId)) {
+    res.status(400).json({ message: 'Invalid hotel id' });
+    return;
+  }
+  const parsed = roomTypeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ message: firstIssue(parsed.error) });
+    return;
+  }
+  try {
+    const roomId = await createRoomType(hotelId, parsed.data);
+    if (!roomId) {
+      res.status(404).json({ message: 'Hotel not found' });
+      return;
+    }
+    res.status(201).json({ id: roomId });
+  } catch (err) {
+    sendError(err, res);
+  }
+}
+
+export async function updateRoomTypeHandler(req: Request, res: Response) {
+  const id = String(req.params.id);
+  if (!UUID_REGEX.test(id)) {
+    res.status(400).json({ message: 'Invalid room type id' });
+    return;
+  }
+  const parsed = roomTypeUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ message: firstIssue(parsed.error) });
+    return;
+  }
+  try {
+    const hotelId = await updateRoomType(id, parsed.data);
+    if (!hotelId) {
+      res.status(404).json({ message: 'Room type not found' });
+      return;
+    }
+    res.json(await findHotelById(hotelId));
+  } catch (err) {
+    sendError(err, res);
+  }
+}
+
+export async function deleteRoomTypeHandler(req: Request, res: Response) {
+  const id = String(req.params.id);
+  if (!UUID_REGEX.test(id)) {
+    res.status(400).json({ message: 'Invalid room type id' });
+    return;
+  }
+  try {
+    if (!(await deleteRoomType(id))) {
+      res.status(404).json({ message: 'Room type not found' });
+      return;
+    }
+    res.status(204).send();
+  } catch (err) {
+    sendError(err, res);
+  }
+}
+
+export async function deleteImageHandler(req: Request, res: Response) {
+  const hotelId = String(req.params.id);
+  const imageId = String(req.params.imageId);
+  if (!UUID_REGEX.test(hotelId) || !UUID_REGEX.test(imageId)) {
+    res.status(400).json({ message: 'Invalid id' });
+    return;
+  }
+  try {
+    const url = await deleteHotelImage(hotelId, imageId);
+    if (!url) {
+      res.status(404).json({ message: 'Photo not found' });
+      return;
+    }
+    await removeUploadedFiles([url]);
+    res.status(204).send();
+  } catch (err) {
+    sendError(err, res);
+  }
+}
