@@ -40,7 +40,8 @@ export default function BookingDetailsPage() {
       })
     );
 
-    if (submitBooking.fulfilled.match(result)) navigate('/booking/confirmed');
+    //if (submitBooking.fulfilled.match(result)) navigate('/booking/confirmed');
+    if (submitBooking.fulfilled.match(result)) navigate('/booking/payment');
   };
 
   return (

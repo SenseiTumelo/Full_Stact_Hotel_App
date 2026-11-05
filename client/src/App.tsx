@@ -12,6 +12,7 @@ import MyTrips from './pages/MyTrips';
 import BookingConfirmedPage from './pages/BookingConfirmatedPage';
 import BookingDetailsPage from './pages/BookingDatesPage';
 import BookingDatesPage from './pages/BookingDatesPage';
+import BookingPaymentPage from './pages/BookingPaymentPage';
 
 function NotFound() {
   return (
@@ -49,6 +50,10 @@ export default function App() {
           path="/booking/confirmed"
           element={<ProtectedRoute><BookingConfirmedPage /></ProtectedRoute>}
         />
+        <Route
+  path="/booking/payment"
+  element={<ProtectedRoute><BookingPaymentPage /></ProtectedRoute>}
+/>
         <Route
           path="/my-trips"
           element={

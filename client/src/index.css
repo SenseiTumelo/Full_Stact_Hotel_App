@@ -294,3 +294,13 @@ url('/hero.jpg');
   .trip-card { grid-template-columns: 1fr; }
   .trip-side { justify-items: start; }
 }
+
+/* Payment */
+.pay-option {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 16px; border: 1px solid var(--color-border);
+  border-radius: var(--radius); cursor: pointer;
+}
+.pay-option:has(input:checked) { border-color: var(--color-dark); background: var(--color-bg); }
+.pay-option input { width: 20px; height: 20px; margin-top: 2px; }
+.pay-form { display: grid; gap: 16px; }
