@@ -62,13 +62,26 @@ export async function findHotelById(id: string) {
        FROM room_types WHERE hotel_id = $1 ORDER BY price_per_night`,
       [id]
     ),
+    pool.query(
+  `SELECT a.id, a.name FROM amenities a
+   JOIN hotel_amenities ha ON ha.amenity_id = a.id
+   WHERE ha.hotel_id = $1 ORDER BY a.name`,
+  [id]
+),
+pool.query(
+  `SELECT id, name, capacity, price_per_night, currency, description, total_rooms
+   FROM room_types WHERE hotel_id = $1 ORDER BY price_per_night`,
+  [id]
+),
   ]);
 
   return {
     ...hotelResult.rows[0],
     images: images.rows,
     amenities: amenities.rows.map((row) => row.name),
+    amenity_ids: amenities.rows.map((row) => row.id),
     room_types: rooms.rows,
+    
   };
 }
 
@@ -107,4 +120,9 @@ export async function addHotelImages(hotelId: string, urls: string[]) {
   } finally {
     client.release();
   }
+}
+
+export async function findAllAmenities() {
+  const result = await pool.query('SELECT id, name FROM amenities ORDER BY name');
+  return result.rows;
 }
