@@ -8,6 +8,7 @@ type RoomCardProps = {
   onSelect?: () => void;
   disabled?: boolean;
   note?: string;
+  selected?: boolean;
 };
 
 export default function RoomCard({
@@ -16,9 +17,10 @@ export default function RoomCard({
   onSelect,
   disabled = false,
   note,
+  selected = false,
 }: RoomCardProps) {
   return (
-    <article className="room-card">
+    <article className={selected ? 'room-card room-card-selected' : 'room-card'}>
       <div className="room-image">Photo</div>
       <div className="room-info">
         <Text variant="subheading">{room.name}</Text>
@@ -28,7 +30,14 @@ export default function RoomCard({
       <div className="room-price">
         <Text variant="caption">per night</Text>
         <strong className="price">R{Number(room.price_per_night).toLocaleString('en-ZA')}</strong>
-        <Button onClick={onSelect} disabled={disabled}>{actionLabel}</Button>
+        <Button
+          variant={selected ? 'dark' : 'primary'}
+          onClick={onSelect}
+          disabled={disabled}
+          aria-pressed={selected}
+        >
+          {selected ? 'Selected ✓' : actionLabel}
+        </Button>
         {note && <Text variant="caption">{note}</Text>}
       </div>
     </article>
