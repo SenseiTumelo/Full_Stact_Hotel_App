@@ -37,8 +37,10 @@ export async function findAvailability(hotelId: string, checkIn: string, checkOu
 const BOOKING_SELECT = `
   SELECT b.id, b.booking_reference, b.status, b.check_in, b.check_out, b.rooms, b.guests,
          b.total_price, b.guest_name, b.guest_email, b.guest_phone, b.special_request, b.created_at,
-         rt.name AS room_name, h.id AS hotel_id, h.name AS hotel_name, h.city AS hotel_city,
-         (SELECT url FROM hotel_images WHERE hotel_id = h.id ORDER BY position LIMIT 1) AS cover_image
+         rt.name AS room_name, rt.currency,
+         h.id AS hotel_id, h.name AS hotel_name, h.city AS hotel_city,
+         (SELECT url FROM hotel_images WHERE hotel_id = h.id ORDER BY position LIMIT 1) AS cover_image,
+         (SELECT status FROM payments WHERE booking_id = b.id ORDER BY created_at DESC LIMIT 1) AS payment_status
   FROM bookings b
   JOIN room_types rt ON rt.id = b.room_type_id
   JOIN hotels h ON h.id = rt.hotel_id`;
@@ -143,6 +145,9 @@ export async function cancelBooking(id: string, userId: string) {
      WHERE id = $1 AND user_id = $2
        AND status IN ('pending', 'approved')
        AND check_in > CURRENT_DATE
+       AND NOT EXISTS (
+         SELECT 1 FROM payments p WHERE p.booking_id = bookings.id AND p.status = 'paid'
+       )
      RETURNING id`,
     [id, userId]
   );
@@ -150,6 +155,11 @@ export async function cancelBooking(id: string, userId: string) {
   if (!result.rowCount) {
     const exists = await pool.query('SELECT 1 FROM bookings WHERE id = $1 AND user_id = $2', [id, userId]);
     if (exists.rows.length === 0) throw new HttpError(404, 'Booking not found');
+
+    const paid = await pool.query(`SELECT 1 FROM payments WHERE booking_id = $1 AND status = 'paid'`, [id]);
+    if (paid.rows.length > 0) {
+      throw new HttpError(409, 'This booking was paid online. Please contact the hotel to cancel and arrange a refund.');
+    }
     throw new HttpError(409, 'This booking can no longer be cancelled');
   }
 
