@@ -14,6 +14,7 @@ export default function Navbar() {
         <nav className="nav-links" aria-label="Main">
           <NavLink to="/" end>Explore</NavLink>
           <NavLink to="/my-trips">My trips</NavLink>
+          {user?.role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
           <a href="#">About</a>
         </nav>
 
