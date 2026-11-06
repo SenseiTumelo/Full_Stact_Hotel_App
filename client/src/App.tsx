@@ -10,7 +10,7 @@ import AuthPage from './pages/AuthPage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import MyTrips from './pages/MyTrips';
 import BookingConfirmedPage from './pages/BookingConfirmatedPage';
-import BookingDetailsPage from './pages/BookingDatesPage';
+import BookingDetailsPage from './pages/BookingDetailsPage';
 import BookingDatesPage from './pages/BookingDatesPage';
 import BookingPaymentPage from './pages/BookingPaymentPage';
 import { Navigate } from 'react-router-dom';

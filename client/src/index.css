@@ -365,3 +365,4 @@ url('/hero.jpg');
 .room-form { display: grid; gap: 16px; padding: 20px; background: var(--color-bg); border-radius: var(--radius); }
 
 .success-note { margin: 0 0 16px; padding: 12px 14px; border-radius: var(--radius); background: #e3f0e1; color: #28501f; font-size: 14px; }
+.room-price .btn { white-space: nowrap; }
