@@ -3,7 +3,7 @@ import hotelsReducer from './slices/hotelsSlice';
 import authReducer from './slices/authSlice';
 import bookingReducer from './slices/bookingSlice';
 import adminBookingsReducer from './slices/adminBookingsSlice';
-
+import reviewsReducer from './slices/reviewsSlice';
 
 
 export const store = configureStore({
@@ -12,6 +12,7 @@ reducer: {
   auth: authReducer,
   booking: bookingReducer,
   adminBookings: adminBookingsReducer,
+  reviews: reviewsReducer,
 },
 
 });
