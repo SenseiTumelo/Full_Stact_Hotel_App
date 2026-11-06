@@ -19,6 +19,7 @@ import AdminHotelEditPage from './pages/AdminHotelEditPage';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminReservationsPage from './pages/AdminReservationsPage';
 import AdminReservationDetailPage from './pages/AdminReservationDetailPage';
+import ReviewPage from './pages/ReviewPage';
 
 function NotFound() {
   return (
@@ -44,6 +45,10 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/register" element={<AuthPage mode="register" />} />
+        <Route
+  path="/my-trips/:id/review"
+  element={<ProtectedRoute><ReviewPage /></ProtectedRoute>}
+/>
         <Route
           path="/hotels/:id/book"
           element={<ProtectedRoute><BookingDatesPage /></ProtectedRoute>}
