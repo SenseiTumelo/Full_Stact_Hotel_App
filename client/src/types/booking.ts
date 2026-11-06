@@ -49,3 +49,17 @@ export type BookingDraft = {
   rooms: number;
   guests: number;
 };
+
+export type BookingList = {
+  items: Booking[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+export type ModifyPayload = {
+  checkIn: string;
+  checkOut: string;
+  rooms: number;
+  guests: number;
+};
