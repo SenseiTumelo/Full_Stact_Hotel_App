@@ -16,6 +16,7 @@ import {
   listBookingsHandler,
   modifyBookingHandler,
 } from '../controllers/adminBookingController';
+import { deleteReviewHandler } from '../controllers/reviewController';
 
 
 const router = Router();
@@ -37,5 +38,7 @@ router.get('/bookings/:id', getBookingHandler);
 router.patch('/bookings/:id', modifyBookingHandler);
 router.post('/bookings/:id/approve', approveBookingHandler);
 router.post('/bookings/:id/cancel', cancelBookingHandler);
+
+router.delete('/reviews/:id', deleteReviewHandler);
 
 export default router;
