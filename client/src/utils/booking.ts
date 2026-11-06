@@ -1,3 +1,5 @@
+import type { Booking } from '../types/booking';
+
 export function todayIso(): string {
   return new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in the user's own timezone
 }
@@ -29,4 +31,11 @@ export function formatPrice(amount: number | string): string {
 // For display only. The server calculates the real total.
 export function totalPrice(pricePerNight: string, nights: number, rooms: number): number {
   return (Math.round(Number(pricePerNight) * 100) * nights * rooms) / 100;
+}
+
+export function paymentLabel(status: Booking['payment_status']): string {
+  if (status === 'paid') return 'Paid online';
+  if (status === 'refunded') return 'Refunded';
+  if (status === 'failed') return 'Payment failed';
+  return 'Pay at the hotel';
 }
