@@ -7,7 +7,7 @@ import { nightsBetween } from '../utils/dates';
 
 // Rooms still free = total rooms minus the BUSIEST night's bookings.
 // We count per night, because two bookings that don't overlap shouldn't block each other.
-const availabilitySql = (roomFilter: string) => `
+export const availabilitySql = (roomFilter: string) => `
   SELECT rt.id AS room_type_id,
          rt.total_rooms - COALESCE((
            SELECT MAX(booked) FROM (
@@ -18,6 +18,7 @@ const availabilitySql = (roomFilter: string) => `
               AND b.status IN ('pending', 'approved')
               AND b.check_in <= night::date
               AND b.check_out > night::date
+              AND ($4::uuid IS NULL OR b.id <> $4::uuid)
              GROUP BY night
            ) per_night
          ), 0) AS available
@@ -25,7 +26,7 @@ const availabilitySql = (roomFilter: string) => `
   WHERE ${roomFilter}`;
 
 export async function findAvailability(hotelId: string, checkIn: string, checkOut: string) {
-  const result = await pool.query(availabilitySql('rt.hotel_id = $1'), [hotelId, checkIn, checkOut]);
+ const result = await pool.query(availabilitySql('rt.hotel_id = $1'), [hotelId, checkIn, checkOut, null]);
   return result.rows.map((row) => ({
     room_type_id: row.room_type_id as string,
     available: Math.max(0, Number(row.available)), // SUM() comes back as text, so convert it
@@ -34,11 +35,13 @@ export async function findAvailability(hotelId: string, checkIn: string, checkOu
 
 /* ---------- Reading bookings ---------- */
 
-const BOOKING_SELECT = `
+export const BOOKING_SELECT = `
   SELECT b.id, b.booking_reference, b.status, b.check_in, b.check_out, b.rooms, b.guests,
          b.total_price, b.guest_name, b.guest_email, b.guest_phone, b.special_request, b.created_at,
-         rt.name AS room_name, h.id AS hotel_id, h.name AS hotel_name, h.city AS hotel_city,
-         (SELECT url FROM hotel_images WHERE hotel_id = h.id ORDER BY position LIMIT 1) AS cover_image
+         rt.name AS room_name, rt.currency,
+         h.id AS hotel_id, h.name AS hotel_name, h.city AS hotel_city,
+         (SELECT url FROM hotel_images WHERE hotel_id = h.id ORDER BY position LIMIT 1) AS cover_image,
+         (SELECT status FROM payments WHERE booking_id = b.id ORDER BY created_at DESC LIMIT 1) AS payment_status
   FROM bookings b
   JOIN room_types rt ON rt.id = b.room_type_id
   JOIN hotels h ON h.id = rt.hotel_id`;
@@ -102,6 +105,7 @@ export async function createBooking(input: NewBooking) {
       input.roomTypeId,
       input.checkIn,
       input.checkOut,
+      null
     ]);
     if (Number(availability.rows[0].available) < input.rooms) {
       throw new HttpError(409, 'Not enough rooms are available for those dates');
@@ -143,6 +147,9 @@ export async function cancelBooking(id: string, userId: string) {
      WHERE id = $1 AND user_id = $2
        AND status IN ('pending', 'approved')
        AND check_in > CURRENT_DATE
+       AND NOT EXISTS (
+         SELECT 1 FROM payments p WHERE p.booking_id = bookings.id AND p.status = 'paid'
+       )
      RETURNING id`,
     [id, userId]
   );
@@ -150,6 +157,11 @@ export async function cancelBooking(id: string, userId: string) {
   if (!result.rowCount) {
     const exists = await pool.query('SELECT 1 FROM bookings WHERE id = $1 AND user_id = $2', [id, userId]);
     if (exists.rows.length === 0) throw new HttpError(404, 'Booking not found');
+
+    const paid = await pool.query(`SELECT 1 FROM payments WHERE booking_id = $1 AND status = 'paid'`, [id]);
+    if (paid.rows.length > 0) {
+      throw new HttpError(409, 'This booking was paid online. Please contact the hotel to cancel and arrange a refund.');
+    }
     throw new HttpError(409, 'This booking can no longer be cancelled');
   }
 

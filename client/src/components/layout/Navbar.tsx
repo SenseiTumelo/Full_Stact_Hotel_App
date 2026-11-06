@@ -9,11 +9,12 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="container navbar-inner">
-        <Link to="/" className="brand">STAY.</Link>
+        <Link to="/" className="brand">Sensei Hotels</Link>
 
         <nav className="nav-links" aria-label="Main">
           <NavLink to="/" end>Explore</NavLink>
           <NavLink to="/my-trips">My trips</NavLink>
+          {user?.role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
           <a href="#">About</a>
         </nav>
 

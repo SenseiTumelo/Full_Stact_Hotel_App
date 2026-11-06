@@ -11,4 +11,6 @@ export const env = {
   googleClientId: required('GOOGLE_CLIENT_ID'),
   googleClientSecret: required('GOOGLE_CLIENT_SECRET'),
   googleCallbackUrl: required('GOOGLE_CALLBACK_URL'),
+  stripeSecretKey: required('STRIPE_SECRET_KEY'),
+  stripeWebhookSecret: required('STRIPE_WEBHOOK_SECRET'),
 };

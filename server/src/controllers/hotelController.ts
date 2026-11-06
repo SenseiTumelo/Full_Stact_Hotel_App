@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import fs from 'fs/promises';
-import { findAllHotels, findHotelById, hotelExists, addHotelImages } from '../repositories/hotelRepository';
+import { findAllHotels, findHotelById, hotelExists, addHotelImages, findAllAmenities } from '../repositories/hotelRepository';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -73,6 +73,15 @@ export async function uploadHotelImages(req: Request, res: Response) {
     res.status(201).json(images);
   } catch (err) {
     await discardFiles();
+    console.error(err);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
+}
+
+export async function getAmenities(_req: Request, res: Response) {
+  try {
+    res.json(await findAllAmenities());
+  } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Something went wrong' });
   }

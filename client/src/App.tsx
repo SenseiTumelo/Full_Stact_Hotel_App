@@ -9,6 +9,14 @@ import { loadCurrentUser } from './store/slices/authSlice';
 import AuthPage from './pages/AuthPage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import MyTrips from './pages/MyTrips';
+import BookingConfirmedPage from './pages/BookingConfirmatedPage';
+import BookingDetailsPage from './pages/BookingDetailsPage';
+import BookingDatesPage from './pages/BookingDatesPage';
+import BookingPaymentPage from './pages/BookingPaymentPage';
+import { Navigate } from 'react-router-dom';
+import AdminHotelsPage from './pages/AdminHotelsPage';
+import AdminHotelEditPage from './pages/AdminHotelEditPage';
+import AdminLayout from './components/admin/AdminLayout';
 
 function NotFound() {
   return (
@@ -35,6 +43,22 @@ export default function App() {
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/register" element={<AuthPage mode="register" />} />
         <Route
+          path="/hotels/:id/book"
+          element={<ProtectedRoute><BookingDatesPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/booking/details"
+          element={<ProtectedRoute><BookingDetailsPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/booking/confirmed"
+          element={<ProtectedRoute><BookingConfirmedPage /></ProtectedRoute>}
+        />
+        <Route
+  path="/booking/payment"
+  element={<ProtectedRoute><BookingPaymentPage /></ProtectedRoute>}
+/>
+        <Route
           path="/my-trips"
           element={
             <ProtectedRoute>
@@ -42,7 +66,22 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/admin"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout />
+    </ProtectedRoute>
+  }
+>
+  <Route index element={<Navigate to="hotels" replace />} />
+  <Route path="hotels" element={<AdminHotelsPage />} />
+  <Route path="hotels/new" element={<AdminHotelEditPage />} />
+  <Route path="hotels/:id" element={<AdminHotelEditPage />} />
+
+</Route>
       </Route>
+      
     </Routes>
   );
 }

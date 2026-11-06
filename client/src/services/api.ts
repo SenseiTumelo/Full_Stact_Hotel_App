@@ -1,6 +1,7 @@
 import axios from 'axios';
-import type { Hotel, HotelDetails } from '../types/hotel';
+import type { Amenity, Hotel, HotelDetails, HotelInput, RoomTypeInput } from '../types/hotel';
 import type { User } from '../types/user';
+import type { Booking, BookingPayload, RoomAvailability } from '../types/booking';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -30,4 +31,76 @@ export async function fetchCurrentUser(): Promise<User> {
 
 export async function logoutRequest(): Promise<void> {
   await api.post('/auth/logout');
+}
+
+export async function fetchAvailability(
+  hotelId: string,
+  checkIn: string,
+  checkOut: string
+): Promise<RoomAvailability[]> {
+  const response = await api.get(`/hotels/${hotelId}/availability`, { params: { checkIn, checkOut } });
+  return response.data;
+}
+
+export async function createBookingRequest(payload: BookingPayload): Promise<Booking> {
+  const response = await api.post('/bookings', payload);
+  return response.data;
+}
+
+export async function fetchMyBookings(): Promise<Booking[]> {
+  const response = await api.get('/bookings/me');
+  return response.data;
+}
+
+export async function cancelBookingRequest(id: string): Promise<Booking> {
+  const response = await api.patch(`/bookings/${id}/cancel`);
+  return response.data;
+}
+export async function createPaymentIntentRequest(
+  bookingId: string
+): Promise<{ clientSecret: string; amount: number; currency: string }> {
+  const response = await api.post('/payments/intent', { bookingId });
+  return response.data;
+}
+
+export async function fetchAmenities(): Promise<Amenity[]> {
+  const response = await api.get('/amenities');
+  return response.data;
+}
+
+export async function createHotelRequest(input: HotelInput): Promise<HotelDetails> {
+  const response = await api.post('/admin/hotels', input);
+  return response.data;
+}
+
+export async function updateHotelRequest(id: string, input: HotelInput): Promise<HotelDetails> {
+  const response = await api.patch(`/admin/hotels/${id}`, input);
+  return response.data;
+}
+
+export async function deleteHotelRequest(id: string): Promise<void> {
+  await api.delete(`/admin/hotels/${id}`);
+}
+
+export async function uploadHotelImagesRequest(hotelId: string, files: File[]): Promise<void> {
+  const data = new FormData();
+  files.forEach((file) => data.append('images', file));
+  // Do not set Content-Type yourself: the browser adds the correct one with the file boundary
+  await api.post(`/hotels/${hotelId}/images`, data, { timeout: 60000 });
+}
+
+export async function deleteHotelImageRequest(hotelId: string, imageId: string): Promise<void> {
+  await api.delete(`/admin/hotels/${hotelId}/images/${imageId}`);
+}
+
+export async function createRoomTypeRequest(hotelId: string, input: RoomTypeInput): Promise<void> {
+  await api.post(`/admin/hotels/${hotelId}/room-types`, input);
+}
+
+export async function updateRoomTypeRequest(id: string, input: RoomTypeInput): Promise<void> {
+  await api.patch(`/admin/room-types/${id}`, input);
+}
+
+export async function deleteRoomTypeRequest(id: string): Promise<void> {
+  await api.delete(`/admin/room-types/${id}`);
 }
