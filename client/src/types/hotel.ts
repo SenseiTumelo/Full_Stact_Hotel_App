@@ -6,6 +6,8 @@ export type Hotel = {
   star_rating: number;
   min_price: string | null; //this is a string instead of a number because postgresql send numeric values as text.
   cover_image: string | null;
+  avg_rating: string | null;
+  review_count: number;
 };
 
 export type RoomType = {

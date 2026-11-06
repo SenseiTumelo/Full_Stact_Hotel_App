@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Amenity, Hotel, HotelDetails, HotelInput, RoomTypeInput } from '../types/hotel';
 import type { User } from '../types/user';
-import type { Booking, BookingList, BookingPayload, ModifyPayload, RoomAvailability } from '../types/booking';
+import type { Booking, BookingList, BookingPayload, ModifyPayload, ReviewSummary, RoomAvailability } from '../types/booking';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -132,4 +132,22 @@ export async function cancelBookingAdminRequest(id: string): Promise<Booking> {
 export async function modifyBookingRequest(id: string, payload: ModifyPayload): Promise<Booking> {
   const response = await api.patch(`/admin/bookings/${id}`, payload);
   return response.data;
+}
+
+export async function fetchHotelReviews(hotelId: string): Promise<ReviewSummary> {
+  const response = await api.get(`/hotels/${hotelId}/reviews`);
+  return response.data;
+}
+
+export async function createReviewRequest(payload: {
+  bookingId: string;
+  rating: number;
+  comment?: string;
+}): Promise<{ id: string; hotelId: string }> {
+  const response = await api.post('/reviews', payload);
+  return response.data;
+}
+
+export async function deleteReviewRequest(id: string): Promise<void> {
+  await api.delete(`/admin/reviews/${id}`);
 }

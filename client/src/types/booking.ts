@@ -21,6 +21,7 @@ export type Booking = {
   cover_image: string | null;
   currency: string;
   payment_status: 'pending' | 'paid' | 'failed' | 'refunded' | null;
+  has_review: boolean;
 };
 
 export type RoomAvailability = { room_type_id: string; available: number };
@@ -62,4 +63,17 @@ export type ModifyPayload = {
   checkOut: string;
   rooms: number;
   guests: number;
+};
+export type Review = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  author: string;
+};
+
+export type ReviewSummary = {
+  count: number;
+  average: number;
+  items: Review[];
 };
