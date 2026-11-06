@@ -6,6 +6,8 @@ import RoomCard from "../components/hotel/RoomCard";
 import Text from "../components/ui/Text";
 import ImageGallery from "../components/hotel/ImageGallery";
 import { Link, useNavigate, useParams } from 'react-router-dom';
+   import ReviewSection from '../components/review/ReviewSection';
+   import StarRating from '../components/ui/StarRating';
 
 export default function HotelDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +16,7 @@ export default function HotelDetailsPage() {
   const { selected: hotel, selectedStatus } = useAppSelector(
     (state) => state.hotels,
   );
+     const reviews = useAppSelector((state) => state.reviews);
 
   useEffect(() => {
     if (id) dispatch(loadHotelById(id));
@@ -50,9 +53,15 @@ export default function HotelDetailsPage() {
         ]}
       />
       <h1 className="page-title">{hotel.name}</h1>
-      <p className="page-subtitle">
-        {hotel.city} · {"*".repeat(hotel.star_rating)}
-      </p>
+   <p className="page-subtitle">
+     {hotel.city} · {'★'.repeat(hotel.star_rating)}
+     {reviews.hotelId === hotel.id && reviews.count > 0 && (
+       <>
+         {' · '}
+         <StarRating value={reviews.average} /> {reviews.average.toFixed(1)} ({reviews.count})
+       </>
+     )}
+   </p>
 
       <div className="details-grid">
         <ImageGallery images={hotel.images} alt={hotel.name} />
@@ -93,6 +102,7 @@ export default function HotelDetailsPage() {
           ))}
         </div>
       </section>
+         <ReviewSection hotelId={hotel.id} />
     </main>
   );
 }
