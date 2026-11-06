@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import hotelsReducer from './slices/hotelsSlice';
 import authReducer from './slices/authSlice';
 import bookingReducer from './slices/bookingSlice';
+import adminBookingsReducer from './slices/adminBookingsSlice';
 
 
 
@@ -10,6 +11,7 @@ reducer: {
   hotels: hotelsReducer,
   auth: authReducer,
   booking: bookingReducer,
+  adminBookings: adminBookingsReducer,
 },
 
 });
