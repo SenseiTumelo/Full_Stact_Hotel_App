@@ -2,6 +2,7 @@ import type { Hotel } from "../../types/hotel";
 import Text from "../ui/Text";
 import { Link } from "react-router-dom";
 import { imageUrl } from "../../utils/imageUrl";
+import StarRating from "../ui/StarRating";
 
 export default function HotelCard({ hotel }: { hotel: Hotel }) {
   return (
@@ -18,6 +19,11 @@ export default function HotelCard({ hotel }: { hotel: Hotel }) {
         <Text variant="caption">
           {hotel.city} · {"*".repeat(hotel.star_rating)}
         </Text>
+        {hotel.review_count > 0 && (
+  <Text variant="caption">
+    <StarRating value={Number(hotel.avg_rating)} /> {hotel.avg_rating} ({hotel.review_count})
+  </Text>
+)}
         {hotel.min_price && (
           <Text variant="body">
             <strong>R{Number(hotel.min_price).toFixed(0)}</strong> / night

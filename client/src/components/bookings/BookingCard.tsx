@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { Booking, BookingStatus } from "../../types/booking";
 import { formatDate, formatPrice, todayIso } from "../../utils/booking";
 import { imageUrl } from "../../utils/imageUrl";
@@ -21,6 +22,11 @@ export default function BookingCard({ booking, onCancel }: BookingCardProps) {
     !isPaid &&
     (booking.status === "pending" || booking.status === "approved") &&
     booking.check_in > todayIso();
+  const ended = booking.check_out <= todayIso();
+  const canReview =
+    ended &&
+    (booking.status === "approved" || booking.status === "completed") &&
+    !booking.has_review;
   return (
     <article className="trip-card">
       <div className="trip-image">
@@ -60,6 +66,17 @@ export default function BookingCard({ booking, onCancel }: BookingCardProps) {
           <Button variant="secondary" onClick={() => onCancel(booking.id)}>
             Cancel booking
           </Button>
+        )}
+        {canReview && (
+          <Link
+            to={`/my-trips/${booking.id}/review`}
+            className="btn btn-primary btn-small"
+          >
+            Leave a review
+          </Link>
+        )}
+        {booking.has_review && (
+          <span className="summary-muted">Reviewed ✓</span>
         )}
       </div>
     </article>
