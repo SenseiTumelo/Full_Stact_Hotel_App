@@ -7,6 +7,7 @@ export default function AdminLayout() {
         <h1 className="page-title">Admin</h1>
         <nav className="admin-tabs" aria-label="Admin">
           <NavLink to="/admin/hotels">Hotels</NavLink>
+          <NavLink to="/admin/reservations">Reservations</NavLink>
         </nav>
       </div>
       <Outlet />

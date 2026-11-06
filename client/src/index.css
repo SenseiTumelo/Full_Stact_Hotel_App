@@ -366,3 +366,9 @@ url('/hero.jpg');
 
 .success-note { margin: 0 0 16px; padding: 12px 14px; border-radius: var(--radius); background: #e3f0e1; color: #28501f; font-size: 14px; }
 .room-price .btn { white-space: nowrap; }
+/* Reservations */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 20px; }
+.detail-list { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 32px; }
+.detail-list dt { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--color-muted); margin-bottom: 4px; }
+.detail-list dd { margin: 0; }
+.admin-table .summary-muted { font-size: 13px; }

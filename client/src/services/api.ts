@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Amenity, Hotel, HotelDetails, HotelInput, RoomTypeInput } from '../types/hotel';
 import type { User } from '../types/user';
-import type { Booking, BookingPayload, RoomAvailability } from '../types/booking';
+import type { Booking, BookingList, BookingPayload, ModifyPayload, RoomAvailability } from '../types/booking';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -103,4 +103,33 @@ export async function updateRoomTypeRequest(id: string, input: RoomTypeInput): P
 
 export async function deleteRoomTypeRequest(id: string): Promise<void> {
   await api.delete(`/admin/room-types/${id}`);
+}
+
+export async function fetchAdminBookings(params: {
+  status?: string;
+  q?: string;
+  page?: number;
+}): Promise<BookingList> {
+  const response = await api.get('/admin/bookings', { params });
+  return response.data;
+}
+
+export async function fetchAdminBooking(id: string): Promise<Booking> {
+  const response = await api.get(`/admin/bookings/${id}`);
+  return response.data;
+}
+
+export async function approveBookingRequest(id: string): Promise<Booking> {
+  const response = await api.post(`/admin/bookings/${id}/approve`);
+  return response.data;
+}
+
+export async function cancelBookingAdminRequest(id: string): Promise<Booking> {
+  const response = await api.post(`/admin/bookings/${id}/cancel`, undefined, { timeout: 30000 });
+  return response.data;
+}
+
+export async function modifyBookingRequest(id: string, payload: ModifyPayload): Promise<Booking> {
+  const response = await api.patch(`/admin/bookings/${id}`, payload);
+  return response.data;
 }

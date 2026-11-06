@@ -14,7 +14,7 @@ import paymentRoutes from './routes/paymentRoutes';
 import { stripeWebhook } from './controllers/paymentController';
 import adminRoutes from './routes/adminRoutes';
 import { getAmenities } from './controllers/hotelController';
-
+import reviewRoutes from './routes/reviewRoutes';
 
 
 
@@ -42,6 +42,7 @@ app.use('/api/v1/hotels', hotelRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
 app.get('/api/v1/amenities', getAmenities);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/reviews', reviewRoutes);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof multer.MulterError || err.message.startsWith('Only')) {

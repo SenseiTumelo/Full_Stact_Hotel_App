@@ -17,6 +17,8 @@ import { Navigate } from 'react-router-dom';
 import AdminHotelsPage from './pages/AdminHotelsPage';
 import AdminHotelEditPage from './pages/AdminHotelEditPage';
 import AdminLayout from './components/admin/AdminLayout';
+import AdminReservationsPage from './pages/AdminReservationsPage';
+import AdminReservationDetailPage from './pages/AdminReservationDetailPage';
 
 function NotFound() {
   return (
@@ -78,6 +80,8 @@ export default function App() {
   <Route path="hotels" element={<AdminHotelsPage />} />
   <Route path="hotels/new" element={<AdminHotelEditPage />} />
   <Route path="hotels/:id" element={<AdminHotelEditPage />} />
+  <Route path="reservations" element={<AdminReservationsPage />} />
+<Route path="reservations/:id" element={<AdminReservationDetailPage />} />
 
 </Route>
       </Route>

@@ -41,7 +41,9 @@ export const BOOKING_SELECT = `
          rt.name AS room_name, rt.currency,
          h.id AS hotel_id, h.name AS hotel_name, h.city AS hotel_city,
          (SELECT url FROM hotel_images WHERE hotel_id = h.id ORDER BY position LIMIT 1) AS cover_image,
-         (SELECT status FROM payments WHERE booking_id = b.id ORDER BY created_at DESC LIMIT 1) AS payment_status
+         (SELECT status FROM payments WHERE booking_id = b.id ORDER BY created_at DESC LIMIT 1) AS payment_status,
+         (SELECT status FROM payments WHERE booking_id = b.id ORDER BY created_at DESC LIMIT 1) AS payment_status,
+         EXISTS (SELECT 1 FROM reviews r WHERE r.booking_id = b.id) AS has_review
   FROM bookings b
   JOIN room_types rt ON rt.id = b.room_type_id
   JOIN hotels h ON h.id = rt.hotel_id`;
