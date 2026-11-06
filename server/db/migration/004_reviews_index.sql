@@ -1,0 +1,1 @@
+CREATE INDEX idx_reviews_hotel_created ON reviews (hotel_id, created_at DESC);
