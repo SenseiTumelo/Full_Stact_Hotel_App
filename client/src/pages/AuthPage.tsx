@@ -86,7 +86,7 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
         <div className="auth-card">
           <div className="auth-heading"><span className="eyebrow">Sensei Hotels</span><h1>{text.title}</h1><p className="auth-subtitle">{text.subtitle}</p></div>
 
-          {(error || googleError) && <div role="alert" className="auth-alert"><CircleAlert size={18} /><span>{error || 'Google sign-in did not complete. Please try again or use your email and password.'}</span></div>}
+          {(error || googleError) && <div role="alert" className="auth-alert"><CircleAlert size={18} /><span>{error || (googleError === 'google_unavailable' ? 'Google sign-in is not configured on this site yet. You can still sign in or create an account with email and password below.' : 'Google sign-in did not complete. Please try again or use your email and password.')}</span></div>}
 
           <a className="btn btn-secondary auth-google" href={GOOGLE_URL}>
             <span className="google-mark" aria-hidden="true">G</span> Continue with Google
