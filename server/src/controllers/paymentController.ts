@@ -47,7 +47,7 @@ export async function createPaymentIntent(req: Request, res: Response) {
       {
         amount,
         currency,
-        payment_method_types: ['card'],
+        allowed_payment_method_types: ['card'],
         metadata: { booking_id: bookingId },
       },
       // Same key = same PaymentIntent, so a double click never creates two payments
