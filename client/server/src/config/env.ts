@@ -9,7 +9,12 @@ if (jwtSecret.length < 32) {
 }
 
 const vercelProjectUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
-const clientUrl = (process.env.CLIENT_URL || (vercelProjectUrl ? `https://${vercelProjectUrl}` : required('CLIENT_URL'))).replace(/\/+$/, '');
+const inferredClientUrl = vercelProjectUrl
+  ? `https://${vercelProjectUrl}`
+  : process.env.NODE_ENV === 'production'
+    ? 'https://full-stact-hotel-app.vercel.app'
+    : 'http://localhost:5173';
+const clientUrl = (process.env.CLIENT_URL || inferredClientUrl).replace(/\/+$/, '');
 if (process.env.NODE_ENV === 'production' && !clientUrl.startsWith('https://')) {
   throw new Error('CLIENT_URL must start with https:// in production');
 }
