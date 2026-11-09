@@ -55,27 +55,16 @@ export async function findHotelById(id: string) {
   const [images, amenities, rooms] = await Promise.all([
     pool.query('SELECT id, url FROM hotel_images WHERE hotel_id = $1 ORDER BY position', [id]),
     pool.query(
-      `SELECT a.name FROM amenities a
+      `SELECT a.id, a.name FROM amenities a
        JOIN hotel_amenities ha ON ha.amenity_id = a.id
        WHERE ha.hotel_id = $1 ORDER BY a.name`,
       [id]
     ),
     pool.query(
-      `SELECT id, name, capacity, price_per_night, currency, description
+      `SELECT id, name, capacity, price_per_night, currency, description, total_rooms
        FROM room_types WHERE hotel_id = $1 ORDER BY price_per_night`,
       [id]
     ),
-    pool.query(
-  `SELECT a.id, a.name FROM amenities a
-   JOIN hotel_amenities ha ON ha.amenity_id = a.id
-   WHERE ha.hotel_id = $1 ORDER BY a.name`,
-  [id]
-),
-pool.query(
-  `SELECT id, name, capacity, price_per_night, currency, description, total_rooms
-   FROM room_types WHERE hotel_id = $1 ORDER BY price_per_night`,
-  [id]
-),
   ]);
 
   return {
