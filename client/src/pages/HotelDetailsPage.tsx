@@ -8,7 +8,8 @@ import ImageGallery from "../components/hotel/ImageGallery";
 import { Link, useNavigate, useParams } from 'react-router-dom';
    import ReviewSection from '../components/review/ReviewSection';
    import StarRating from '../components/ui/StarRating';
-import { Check, MapPin, Star } from 'lucide-react';
+import { BedDouble, Check, MapPin, Star } from 'lucide-react';
+import EmptyState from '../components/ui/EmptyState';
 
 export default function HotelDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -93,16 +94,9 @@ export default function HotelDetailsPage() {
 
       <section style={{ marginTop: 48 }}>
         <h2 className="section-title">Choose a room</h2>
-        <div className="room-list">
-          {hotel.room_types.map((room) => (
-            <RoomCard
-              key={room.id}
-              room={room}
-              actionLabel="Check availability"
-              onSelect={() => navigate(`/hotels/${hotel.id}/book`)}
-            />
-          ))}
-        </div>
+        {hotel.room_types.length === 0 ? <EmptyState icon={BedDouble} title="No rooms are listed yet" description="This property is not accepting room bookings at the moment."><Link to="/" className="btn btn-secondary">Explore other stays</Link></EmptyState> : <div className="room-list">
+          {hotel.room_types.map((room) => <RoomCard key={room.id} room={room} actionLabel="Check availability" onSelect={() => navigate(`/hotels/${hotel.id}/book`)} />)}
+        </div>}
       </section>
          <ReviewSection hotelId={hotel.id} />
     </main>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { imageUrl } from '../../utils/imageUrl';
+import { Images } from 'lucide-react';
 
 type ImageGalleryProps = {
   images: { id: string; url: string }[];
@@ -10,7 +11,7 @@ export default function ImageGallery({ images, alt }: ImageGalleryProps) {
   const [active, setActive] = useState(0);
 
   if (images.length === 0) {
-    return <div className="gallery-main gallery-empty">No photos yet</div>;
+    return <div className="gallery-main gallery-empty"><div><Images size={28} /><span>Property photos coming soon</span></div></div>;
   }
 
   const current = images[active];

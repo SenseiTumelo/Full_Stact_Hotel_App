@@ -5,8 +5,9 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { loadAdminBookings } from '../store/slices/adminBookingsSlice';
 import StatusBadge from '../components/bookings/StatusBadge';
 import Button from '../components/ui/Button';
-import Text from '../components/ui/Text';
 import { formatDate, formatPrice, paymentLabel } from '../utils/booking';
+import EmptyState from '../components/ui/EmptyState';
+import { CalendarDays, RefreshCw, SearchX } from 'lucide-react';
 
 const STATUSES = [
   { value: '', label: 'All statuses' },
@@ -76,10 +77,13 @@ export default function AdminReservationsPage() {
         <Button type="submit">Search</Button>
       </form>
 
-      {listError && <p role="alert" className="form-error">{listError}</p>}
-      {listStatus === 'loading' && list.items.length === 0 && <Text>Loading...</Text>}
+      {listError && list.items.length > 0 && <p role="alert" className="form-error">{listError}</p>}
+      {listStatus === 'loading' && list.items.length === 0 && <div className="empty-state-loading">Loading reservations…</div>}
+      {listStatus === 'failed' && list.items.length === 0 && <EmptyState icon={CalendarDays} title="Reservations could not be loaded" description={listError ?? 'Check your connection and try again.'}><Button variant="secondary" onClick={() => dispatch(loadAdminBookings({ status: status || undefined, q: q || undefined, page }))}><RefreshCw size={15} /> Try again</Button></EmptyState>}
       {listStatus === 'succeeded' && list.items.length === 0 && (
-        <Text variant="caption">No reservations match these filters.</Text>
+        <EmptyState icon={q || status ? SearchX : CalendarDays} title={q || status ? 'No matching reservations' : 'No reservations yet'} description={q || status ? 'Try a different search or clear the filters to see all reservations.' : 'New guest reservations will appear here once a stay is booked.'}>
+          {(q || status) && <Button variant="secondary" onClick={() => { setSearchText(''); setParams({}); }}>Clear filters</Button>}
+        </EmptyState>
       )}
 
       {list.items.length > 0 && (

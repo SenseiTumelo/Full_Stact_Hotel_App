@@ -5,7 +5,8 @@ import { deleteHotelImageRequest, uploadHotelImagesRequest } from '../../service
 import { getErrorMessage } from '../../utils/errors';
 import { imageUrl } from '../../utils/imageUrl';
 import { useFeedback } from '../ui/FeedbackProvider';
-import { Trash2 } from 'lucide-react';
+import { ImagePlus, Trash2 } from 'lucide-react';
+import EmptyState from '../ui/EmptyState';
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -62,7 +63,7 @@ export default function PhotoManager({ hotelId, images, onChanged }: PhotoManage
       <h2 id="photos-heading">Photos</h2>
 
       {images.length === 0 ? (
-        <p className="summary-muted">No photos yet. The first photo you upload becomes the cover image.</p>
+        <EmptyState compact icon={ImagePlus} title="No property photos yet" description="Upload a few clear photos. The first image becomes the hotel cover." />
       ) : (
         <div className="photo-grid">
           {images.map((image, index) => (

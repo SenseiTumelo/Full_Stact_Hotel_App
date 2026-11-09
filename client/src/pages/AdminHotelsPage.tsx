@@ -3,16 +3,17 @@ import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { loadHotels } from '../store/slices/hotelsSlice';
 import { deleteHotelRequest } from '../services/api';
-import Text from '../components/ui/Text';
 import Button from '../components/ui/Button';
 import type { Hotel } from '../types/hotel';
 import { getErrorMessage } from '../utils/errors';
 import { formatPrice } from '../utils/booking';
 import { useFeedback } from '../components/ui/FeedbackProvider';
+import EmptyState from '../components/ui/EmptyState';
+import { Building2, RefreshCw } from 'lucide-react';
 
 export default function AdminHotelsPage() {
   const dispatch = useAppDispatch();
-  const { items, status } = useAppSelector((state) => state.hotels);
+  const { items, status, error: loadError } = useAppSelector((state) => state.hotels);
   const [error, setError] = useState('');
   const { confirm, notify } = useFeedback();
 
@@ -40,8 +41,10 @@ export default function AdminHotelsPage() {
       </div>
 
       {error && <p role="alert" className="form-error">{error}</p>}
-      {status === 'loading' && items.length === 0 && <Text>Loading...</Text>}
-      {status === 'succeeded' && items.length === 0 && <Text variant="caption">No hotels yet.</Text>}
+      {loadError && items.length > 0 && <p role="alert" className="form-error">{loadError}</p>}
+      {status === 'loading' && items.length === 0 && <div className="empty-state-loading">Loading properties…</div>}
+      {status === 'failed' && items.length === 0 && <EmptyState icon={Building2} title="Properties could not be loaded" description={loadError ?? 'Check your connection and try again.'}><Button variant="secondary" onClick={() => dispatch(loadHotels())}><RefreshCw size={15} /> Try again</Button></EmptyState>}
+      {status === 'succeeded' && items.length === 0 && <EmptyState icon={Building2} title="Your property list is empty" description="Add your first hotel to start setting up rooms, photos, and guest stays."><Link to="/admin/hotels/new" className="btn btn-primary">Add a hotel</Link></EmptyState>}
 
       {items.length > 0 && (
         <div className="table-wrap">

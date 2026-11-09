@@ -22,7 +22,7 @@ passport.use(
 
         const user = await findOrCreateGoogleUser({
           googleId: profile.id,
-          email,
+          email: email.toLowerCase(),
           fullName: profile.displayName || email,
           avatarUrl: profile.photos?.[0]?.value ?? null,
         });

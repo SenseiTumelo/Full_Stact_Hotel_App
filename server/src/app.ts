@@ -20,6 +20,8 @@ import reviewRoutes from './routes/reviewRoutes';
 
 
 const app = express();
+// Render sits behind one proxy; trust it so per-IP sign-in limits use the visitor's IP.
+if (env.isProd) app.set('trust proxy', 1);
 
 // Only our React app may call the API, and cookies are allowed
 app.use(cors({ origin: env.clientUrl, credentials: true }));

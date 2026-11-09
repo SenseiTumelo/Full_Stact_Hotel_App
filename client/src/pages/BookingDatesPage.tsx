@@ -16,6 +16,8 @@ import {
   todayIso,
   totalPrice,
 } from "../utils/booking";
+import EmptyState from "../components/ui/EmptyState";
+import { BedDouble, CalendarX } from 'lucide-react';
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.round(value) || min));
@@ -75,6 +77,7 @@ export default function BookingDatesPage() {
 
   const roomsLeft = (roomId: string) =>
     availability.find((item) => item.room_type_id === roomId)?.available ?? 0;
+  const noRoomsForStay = datesValid && availabilityStatus === "succeeded" && hotel.room_types.length > 0 && hotel.room_types.every((room) => roomsLeft(room.id) === 0);
 
   function roomState(room: RoomType): { disabled: boolean; note?: string } {
     if (!datesValid) return { disabled: true, note: "Choose your dates first" };
@@ -205,14 +208,10 @@ export default function BookingDatesPage() {
             {datesValid && availabilityStatus === "loading" && (
               <Text variant="caption">Checking availability...</Text>
             )}
-            {datesValid && availabilityStatus === "failed" && (
-              <Text variant="caption">
-                Could not check availability. Please try again.
-              </Text>
-            )}
+            {datesValid && availabilityStatus === "failed" && <div role="alert" className="inline-notice inline-notice-error">Could not check availability. Please adjust the dates and try again.</div>}
           </div>
 
-          <div className="room-list">
+          {hotel.room_types.length === 0 ? <EmptyState icon={BedDouble} title="No rooms are available to book yet" description="This property has not added any room types. Please explore another stay."><Link to={`/hotels/${hotel.id}`} className="btn btn-secondary">Back to property</Link></EmptyState> : noRoomsForStay ? <EmptyState icon={CalendarX} title="No rooms available for these dates" description="Try different dates or fewer rooms to see what is available." /> : <div className="room-list">
             {hotel.room_types.map((room) => {
               const state = roomState(room);
               return (
@@ -226,7 +225,7 @@ export default function BookingDatesPage() {
                 />
               );
             })}
-          </div>
+          </div>}
         </div>
 
         <aside className="summary-card stay-panel" aria-label="Your stay">
@@ -279,32 +278,6 @@ export default function BookingDatesPage() {
               {helper}
             </p>
           )}
-          <pre
-            style={{
-              fontSize: 11,
-              whiteSpace: "pre-wrap",
-              background: "#fff8",
-              padding: 8,
-            }}
-          >
-            {JSON.stringify(
-              {
-                checkIn,
-                checkOut,
-                datesValid,
-                rooms,
-                guests,
-                selectedRoomId,
-                availabilityStatus,
-                availability,
-                selectedState,
-                canContinue,
-                helper,
-              },
-              null,
-              2,
-            )}
-          </pre>
         </aside>
       </div>
     </main>

@@ -6,6 +6,8 @@ import ReviewList from './ReviewList';
 import StarRating from '../ui/StarRating';
 import Text from '../ui/Text';
 import { useFeedback } from '../ui/FeedbackProvider';
+import EmptyState from '../ui/EmptyState';
+import { MessageSquareText } from 'lucide-react';
 
 export default function ReviewSection({ hotelId }: { hotelId: string }) {
   const dispatch = useAppDispatch();
@@ -49,7 +51,7 @@ export default function ReviewSection({ hotelId }: { hotelId: string }) {
       {removeError && <p role="alert" className="form-error">{removeError}</p>}
 
       {ready && status === 'succeeded' && count === 0 && (
-        <Text variant="caption">No reviews yet. Guests can review after their stay.</Text>
+        <EmptyState compact icon={MessageSquareText} title="No guest reviews yet" description="Reviews from guests will appear here after their stay." />
       )}
 
       {ready && count > 0 && (

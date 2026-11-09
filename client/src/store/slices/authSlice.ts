@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import { fetchCurrentUser, logoutRequest } from '../../services/api';
 import type { User } from '../../types/user';
 
@@ -20,7 +21,12 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    setAuthenticatedUser(state, action: PayloadAction<User>) {
+      state.user = action.payload;
+      state.status = 'ready';
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(loadCurrentUser.pending, (state) => {
@@ -40,4 +46,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { setAuthenticatedUser } = authSlice.actions;
 export default authSlice.reducer;

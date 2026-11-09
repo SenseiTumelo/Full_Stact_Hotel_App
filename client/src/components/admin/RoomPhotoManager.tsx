@@ -6,6 +6,7 @@ import { useFeedback } from '../ui/FeedbackProvider';
 import { deleteRoomTypeImageRequest, uploadRoomTypeImagesRequest } from '../../services/api';
 import { imageUrl } from '../../utils/imageUrl';
 import { getErrorMessage } from '../../utils/errors';
+import EmptyState from '../ui/EmptyState';
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -66,7 +67,7 @@ export default function RoomPhotoManager({ roomTypeId, roomName, images, onChang
           <img src={imageUrl(image.url)} alt={`${roomName} photo ${index + 1}`} loading="lazy" />
           <button type="button" aria-label={`Delete ${roomName} photo ${index + 1}`} onClick={() => handleDelete(image.id)}><Trash2 size={16} /></button>
         </div>)}
-      </div> : <p className="summary-muted room-photo-empty">No photos yet. Add images so guests can see this room before booking.</p>}
+      </div> : <EmptyState compact icon={ImagePlus} title="No room photos yet" description="Add images so guests can see this room before booking." />}
       <form className="room-photo-upload" onSubmit={handleUpload}>
         <div className="field"><label htmlFor={`room-photos-${roomTypeId}`}>Choose photos (JPG, PNG or WEBP, up to 5 MB each)</label>
           <input key={inputKey} id={`room-photos-${roomTypeId}`} type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => setFiles(Array.from(event.target.files ?? []))} />

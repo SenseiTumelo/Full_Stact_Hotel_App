@@ -71,3 +71,22 @@ export async function findUserById(id: string) {
   );
   return result.rows[0] ?? null;
 }
+
+export async function createPasswordUser(input: { email: string; fullName: string; passwordHash: string }) {
+  const result = await pool.query(
+    `INSERT INTO users (email, full_name, password_hash)
+     VALUES ($1, $2, $3)
+     RETURNING id, email, full_name, avatar_url, role`,
+    [input.email, input.fullName, input.passwordHash]
+  );
+  return result.rows[0];
+}
+
+export async function findPasswordUserByEmail(email: string) {
+  const result = await pool.query(
+    `SELECT id, email, full_name, avatar_url, role, password_hash
+     FROM users WHERE email = $1 AND deleted_at IS NULL`,
+    [email]
+  );
+  return result.rows[0] ?? null;
+}

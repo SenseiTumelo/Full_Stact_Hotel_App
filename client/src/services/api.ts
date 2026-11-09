@@ -29,6 +29,16 @@ export async function fetchCurrentUser(): Promise<User> {
   return response.data;
 }
 
+export async function loginWithPasswordRequest(input: { email: string; password: string }): Promise<User> {
+  const response = await api.post('/auth/login', input);
+  return response.data;
+}
+
+export async function registerWithPasswordRequest(input: { fullName: string; email: string; password: string }): Promise<User> {
+  const response = await api.post('/auth/register', input);
+  return response.data;
+}
+
 export async function logoutRequest(): Promise<void> {
   await api.post('/auth/logout');
 }

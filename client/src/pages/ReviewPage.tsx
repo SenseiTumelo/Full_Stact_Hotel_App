@@ -9,6 +9,8 @@ import StarRatingInput from '../components/ui/StarRatingInput';
 import Button from '../components/ui/Button';
 import Text from '../components/ui/Text';
 import { formatDate, todayIso } from '../utils/booking';
+import EmptyState from '../components/ui/EmptyState';
+import { CalendarDays, RefreshCw } from 'lucide-react';
 
 export default function ReviewPage() {
   const { id } = useParams<{ id: string }>();
@@ -32,8 +34,10 @@ export default function ReviewPage() {
     if (mineStatus === 'loading' || mineStatus === 'idle') return <main className="container section"><Text>Loading...</Text></main>;
     return (
       <main className="container section">
-        <Text variant="heading">Booking not found</Text>
-        <p><Link to="/my-trips">Back to my trips</Link></p>
+        <EmptyState icon={CalendarDays} title={mineStatus === 'failed' ? 'Your booking could not be loaded' : 'Booking not found'} description={mineStatus === 'failed' ? 'Check your connection and try again.' : 'This reservation may have been removed or may not belong to your account.'}>
+          {mineStatus === 'failed' && <Button variant="secondary" onClick={() => dispatch(loadMyBookings())}><RefreshCw size={15} /> Try again</Button>}
+          <Link to="/my-trips" className="btn btn-primary">Back to my trips</Link>
+        </EmptyState>
       </main>
     );
   }

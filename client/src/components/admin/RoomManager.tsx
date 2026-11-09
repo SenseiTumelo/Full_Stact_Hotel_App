@@ -11,6 +11,8 @@ import { getErrorMessage } from '../../utils/errors';
 import { formatPrice } from '../../utils/booking';
 import { useFeedback } from '../ui/FeedbackProvider';
 import RoomPhotoManager from './RoomPhotoManager';
+import EmptyState from '../ui/EmptyState';
+import { BedDouble } from 'lucide-react';
 
 type RoomFormValues = {
   name: string;
@@ -100,9 +102,7 @@ export default function RoomManager({ hotelId, rooms, onChanged }: RoomManagerPr
         {editing === null && <Button onClick={startNew}>Add room type</Button>}
       </div>
 
-      {rooms.length === 0 && editing === null && (
-        <p className="summary-muted">No room types yet. Guests cannot book this hotel until you add one.</p>
-      )}
+      {rooms.length === 0 && editing === null && <EmptyState compact icon={BedDouble} title="No room types yet" description="Add a room type before guests can book this property." />}
 
       {rooms.map((room) => (
         <div key={room.id} className="room-admin-entry">
