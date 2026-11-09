@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 let appPromise;
 
 export default async function handler(request, response) {
@@ -15,7 +18,10 @@ export default async function handler(request, response) {
   incoming.searchParams.delete('path');
   request.url = `${originalPath}${incoming.search}`;
   try {
-    appPromise ??= import('../server/dist/app.js').then((module) => module.default || module);
+    appPromise ??= Promise.resolve().then(() => {
+      const module = require('../server/dist/app.js');
+      return module.default || module;
+    });
     const app = await appPromise;
     return app(request, response);
   } catch (error) {
