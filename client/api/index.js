@@ -1,8 +1,6 @@
-import appModule from '../server/dist/app.js';
+let appPromise;
 
-const app = appModule.default || appModule;
-
-export default function handler(request, response) {
+export default async function handler(request, response) {
   // Vercel serves this as one stable function and forwards the original API
   // path through the `path` query parameter in vercel.json.
   const incoming = new URL(request.url, `https://${request.headers.host || 'localhost'}`);
@@ -16,5 +14,20 @@ export default function handler(request, response) {
 
   incoming.searchParams.delete('path');
   request.url = `${originalPath}${incoming.search}`;
-  return app(request, response);
+  try {
+    appPromise ??= import('../server/dist/app.js').then((module) => module.default || module);
+    const app = await appPromise;
+    return app(request, response);
+  } catch (error) {
+    console.error('API initialization failed:', error);
+    const message = error instanceof Error ? error.message : '';
+    const missingSetting = message.match(/Missing environment variable: ([A-Z0-9_]+)/)?.[1];
+    response.statusCode = 503;
+    response.setHeader('content-type', 'application/json; charset=utf-8');
+    response.end(JSON.stringify({
+      message: missingSetting
+        ? `The API is missing the ${missingSetting} deployment setting.`
+        : 'The API could not start. Check the Vercel function logs.',
+    }));
+  }
 }
