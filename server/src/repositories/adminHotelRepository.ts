@@ -109,7 +109,13 @@ export async function deleteHotel(id: string): Promise<string[] | null> {
     throw new HttpError(409, 'This hotel has bookings, so it cannot be deleted.');
   }
 
-  const images = await pool.query('SELECT url FROM hotel_images WHERE hotel_id = $1', [id]);
+  const images = await pool.query(
+    `SELECT url FROM hotel_images WHERE hotel_id = $1
+     UNION ALL
+     SELECT rti.url FROM room_type_images rti
+     JOIN room_types rt ON rt.id = rti.room_type_id WHERE rt.hotel_id = $1`,
+    [id]
+  );
   const result = await pool.query('DELETE FROM hotels WHERE id = $1', [id]);
   if (!result.rowCount) return null;
   return images.rows.map((row) => row.url as string);
@@ -119,6 +125,48 @@ export async function deleteHotelImage(hotelId: string, imageId: string): Promis
   const result = await pool.query(
     'DELETE FROM hotel_images WHERE id = $1 AND hotel_id = $2 RETURNING url',
     [imageId, hotelId]
+  );
+  return result.rows[0]?.url ?? null;
+}
+
+export async function addRoomTypeImages(roomTypeId: string, urls: string[]) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const room = await client.query('SELECT id FROM room_types WHERE id = $1 FOR UPDATE', [roomTypeId]);
+    if (!room.rowCount) {
+      await client.query('ROLLBACK');
+      return null;
+    }
+    const last = await client.query(
+      'SELECT COALESCE(MAX(position), -1) AS last FROM room_type_images WHERE room_type_id = $1',
+      [roomTypeId]
+    );
+    let position = Number(last.rows[0].last);
+    const inserted = [];
+    for (const url of urls) {
+      position += 1;
+      const result = await client.query(
+        `INSERT INTO room_type_images (room_type_id, url, position)
+         VALUES ($1, $2, $3) RETURNING id, url, position`,
+        [roomTypeId, url, position]
+      );
+      inserted.push(result.rows[0]);
+    }
+    await client.query('COMMIT');
+    return inserted;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+export async function deleteRoomTypeImage(roomTypeId: string, imageId: string): Promise<string | null> {
+  const result = await pool.query(
+    'DELETE FROM room_type_images WHERE id = $1 AND room_type_id = $2 RETURNING url',
+    [imageId, roomTypeId]
   );
   return result.rows[0]?.url ?? null;
 }
@@ -192,11 +240,13 @@ export async function updateRoomType(id: string, input: RoomTypeUpdate): Promise
   return room.rows[0].hotel_id as string;
 }
 
-export async function deleteRoomType(id: string): Promise<boolean> {
+export async function deleteRoomType(id: string): Promise<string[] | null> {
   const booked = await pool.query('SELECT 1 FROM bookings WHERE room_type_id = $1 LIMIT 1', [id]);
   if (booked.rows.length > 0) {
     throw new HttpError(409, 'This room type has bookings, so it cannot be deleted. Reduce its rooms instead.');
   }
+  const images = await pool.query('SELECT url FROM room_type_images WHERE room_type_id = $1', [id]);
   const result = await pool.query('DELETE FROM room_types WHERE id = $1', [id]);
-  return (result.rowCount ?? 0) > 0;
+  if (!(result.rowCount ?? 0)) return null;
+  return images.rows.map((row) => row.url as string);
 }

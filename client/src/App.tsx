@@ -13,12 +13,13 @@ import BookingConfirmedPage from './pages/BookingConfirmatedPage';
 import BookingDetailsPage from './pages/BookingDetailsPage';
 import BookingDatesPage from './pages/BookingDatesPage';
 import BookingPaymentPage from './pages/BookingPaymentPage';
-import { Navigate } from 'react-router-dom';
 import AdminHotelsPage from './pages/AdminHotelsPage';
 import AdminHotelEditPage from './pages/AdminHotelEditPage';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminReservationsPage from './pages/AdminReservationsPage';
 import AdminReservationDetailPage from './pages/AdminReservationDetailPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminReviewsPage from './pages/AdminReviewsPage';
 import ReviewPage from './pages/ReviewPage';
 
 function NotFound() {
@@ -81,12 +82,13 @@ export default function App() {
     </ProtectedRoute>
   }
 >
-  <Route index element={<Navigate to="hotels" replace />} />
+  <Route index element={<AdminDashboardPage />} />
   <Route path="hotels" element={<AdminHotelsPage />} />
   <Route path="hotels/new" element={<AdminHotelEditPage />} />
   <Route path="hotels/:id" element={<AdminHotelEditPage />} />
   <Route path="reservations" element={<AdminReservationsPage />} />
 <Route path="reservations/:id" element={<AdminReservationDetailPage />} />
+  <Route path="reviews" element={<AdminReviewsPage />} />
 
 </Route>
       </Route>

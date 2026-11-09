@@ -9,6 +9,7 @@ import PhotoManager from '../components/admin/PhotoManager';
 import RoomManager from '../components/admin/RoomManager';
 import Text from '../components/ui/Text';
 import type { Amenity, HotelInput } from '../types/hotel';
+import { useFeedback } from '../components/ui/FeedbackProvider';
 
 export default function AdminHotelEditPage() {
   const { id } = useParams<{ id: string }>(); // undefined on the "new" page
@@ -18,6 +19,7 @@ export default function AdminHotelEditPage() {
   const { selected: hotel, selectedStatus } = useAppSelector((state) => state.hotels);
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [saved, setSaved] = useState('');
+  const { notify } = useFeedback();
 
   const justCreated = Boolean((location.state as { justCreated?: boolean } | null)?.justCreated);
 
@@ -35,6 +37,7 @@ export default function AdminHotelEditPage() {
 
   async function handleCreate(values: HotelInput) {
     const created = await createHotelRequest(values);
+    notify('Property created. Add its photos and room types next.');
     navigate(`/admin/hotels/${created.id}`, { state: { justCreated: true } });
   }
 
@@ -42,6 +45,7 @@ export default function AdminHotelEditPage() {
     if (!id) return;
     await updateHotelRequest(id, values);
     setSaved('Changes saved.');
+    notify('Property details saved.');
     refresh();
   }
 

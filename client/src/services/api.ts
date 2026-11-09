@@ -105,12 +105,56 @@ export async function deleteRoomTypeRequest(id: string): Promise<void> {
   await api.delete(`/admin/room-types/${id}`);
 }
 
+export async function uploadRoomTypeImagesRequest(roomTypeId: string, files: File[]): Promise<void> {
+  const data = new FormData();
+  files.forEach((file) => data.append('images', file));
+  await api.post(`/admin/room-types/${roomTypeId}/images`, data, { timeout: 60000 });
+}
+
+export async function deleteRoomTypeImageRequest(roomTypeId: string, imageId: string): Promise<void> {
+  await api.delete(`/admin/room-types/${roomTypeId}/images/${imageId}`);
+}
+
 export async function fetchAdminBookings(params: {
   status?: string;
   q?: string;
   page?: number;
 }): Promise<BookingList> {
   const response = await api.get('/admin/bookings', { params });
+  return response.data;
+}
+
+export type AdminDashboardData = {
+  hotels: number;
+  roomTypes: number;
+  bookings: number;
+  pendingBookings: number;
+  activeBookings: number;
+  paidRevenue: string;
+  reviews: number;
+  recentBookings: Booking[];
+};
+
+export type AdminReview = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  booking_id: string;
+  hotel_id: string;
+  hotel_name: string;
+  author: string;
+};
+
+export type AdminReviewList = { items: AdminReview[]; total: number; page: number; pageSize: number };
+
+export async function fetchAdminDashboard(): Promise<AdminDashboardData> {
+  const response = await api.get('/admin/dashboard');
+  return response.data;
+}
+
+export async function fetchAdminReviews(params: { q?: string; page?: number }): Promise<AdminReviewList> {
+  const response = await api.get('/admin/reviews', { params });
   return response.data;
 }
 
@@ -121,6 +165,11 @@ export async function fetchAdminBooking(id: string): Promise<Booking> {
 
 export async function approveBookingRequest(id: string): Promise<Booking> {
   const response = await api.post(`/admin/bookings/${id}/approve`);
+  return response.data;
+}
+
+export async function completeBookingRequest(id: string): Promise<Booking> {
+  const response = await api.post(`/admin/bookings/${id}/complete`);
   return response.data;
 }
 

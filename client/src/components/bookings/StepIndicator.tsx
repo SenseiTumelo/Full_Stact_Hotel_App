@@ -12,7 +12,7 @@ export default function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
             className={`step step-${state}`}
             aria-current={number === current ? 'step' : undefined}
           >
-            <span className="step-dot">{state === 'done' ? '✓' : number}</span>
+            <span className="step-dot">{state === 'done' ? <Check size={15} aria-hidden="true" /> : number}</span>
             {label}
           </li>
         );
@@ -20,3 +20,4 @@ export default function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
     </ol>
   );
 }
+import { Check } from 'lucide-react';

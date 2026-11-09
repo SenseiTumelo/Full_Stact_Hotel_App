@@ -5,6 +5,7 @@ import { loadReviews, removeReview } from '../../store/slices/reviewsSlice';
 import ReviewList from './ReviewList';
 import StarRating from '../ui/StarRating';
 import Text from '../ui/Text';
+import { useFeedback } from '../ui/FeedbackProvider';
 
 export default function ReviewSection({ hotelId }: { hotelId: string }) {
   const dispatch = useAppDispatch();
@@ -13,6 +14,7 @@ export default function ReviewSection({ hotelId }: { hotelId: string }) {
     (state) => state.reviews
   );
   const isAdmin = useAppSelector((state) => state.auth.user?.role === 'admin');
+  const { confirm, notify } = useFeedback();
 
   useEffect(() => {
     dispatch(loadReviews(hotelId));
@@ -26,9 +28,14 @@ export default function ReviewSection({ hotelId }: { hotelId: string }) {
   }, [location.hash, status]);
 
   async function handleRemove(id: string) {
-    if (!window.confirm('Remove this review permanently?')) return;
-    await dispatch(removeReview(id));
-    dispatch(loadReviews(hotelId));
+    if (!await confirm({ title: 'Remove this review?', message: 'This review will no longer appear on the property page.', confirmLabel: 'Remove review', destructive: true })) return;
+    const result = await dispatch(removeReview(id));
+    if (removeReview.fulfilled.match(result)) {
+      notify('Review removed.');
+      dispatch(loadReviews(hotelId));
+    } else {
+      notify(result.payload ?? 'Could not remove review.', 'error');
+    }
   }
 
   const ready = loadedId === hotelId;

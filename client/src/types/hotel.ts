@@ -18,6 +18,7 @@ export type RoomType = {
   currency: string;
   description: string | null;
   total_rooms: number;
+  images: { id: string; url: string }[];
 };
 
 export type HotelDetails = {

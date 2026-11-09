@@ -8,6 +8,7 @@ import ImageGallery from "../components/hotel/ImageGallery";
 import { Link, useNavigate, useParams } from 'react-router-dom';
    import ReviewSection from '../components/review/ReviewSection';
    import StarRating from '../components/ui/StarRating';
+import { Check, MapPin, Star } from 'lucide-react';
 
 export default function HotelDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -54,7 +55,8 @@ export default function HotelDetailsPage() {
       />
       <h1 className="page-title">{hotel.name}</h1>
    <p className="page-subtitle">
-     {hotel.city} · {'★'.repeat(hotel.star_rating)}
+     <span className="hotel-location"><MapPin size={15} /> {hotel.city}</span>
+     <span className="hotel-star-badge">{Array.from({ length: hotel.star_rating }, (_, index) => <Star key={index} size={13} fill="currentColor" />)} {hotel.star_rating}-star stay</span>
      {reviews.hotelId === hotel.id && reviews.count > 0 && (
        <>
          {' · '}
@@ -71,7 +73,7 @@ export default function HotelDetailsPage() {
           {hotel.description && <p>{hotel.description}</p>}
           <ul className="checklist">
             {hotel.amenities.map((amenity) => (
-              <li key={amenity}>✓ {amenity}</li>
+              <li key={amenity}><span className="amenity-check"><Check size={13} /></span>{amenity}</li>
             ))}
           </ul>
           {cheapest && (

@@ -10,14 +10,17 @@ import { findHotelById } from '../repositories/hotelRepository';
 import {
   createHotel,
   createRoomType,
+  addRoomTypeImages,
   deleteHotel,
   deleteHotelImage,
   deleteRoomType,
+  deleteRoomTypeImage,
   updateHotel,
   updateRoomType,
 } from '../repositories/adminHotelRepository';
 import { removeUploadedFiles } from '../utils/files';
 import { sendError } from '../utils/httpError';
+import { uploadImages } from '../middleware/uploads';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -134,10 +137,61 @@ export async function deleteRoomTypeHandler(req: Request, res: Response) {
     return;
   }
   try {
-    if (!(await deleteRoomType(id))) {
+    const imageUrls = await deleteRoomType(id);
+    if (imageUrls === null) {
       res.status(404).json({ message: 'Room type not found' });
       return;
     }
+    await removeUploadedFiles(imageUrls);
+    res.status(204).send();
+  } catch (err) {
+    sendError(err, res);
+  }
+}
+
+export async function uploadRoomTypeImagesHandler(req: Request, res: Response) {
+  const roomTypeId = String(req.params.id);
+  const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+  const urls = files.map((file) => `/uploads/${file.filename}`);
+  const discardFiles = () => removeUploadedFiles(urls);
+
+  if (!UUID_REGEX.test(roomTypeId)) {
+    await discardFiles();
+    res.status(400).json({ message: 'Invalid room type id' });
+    return;
+  }
+  if (files.length === 0) {
+    res.status(400).json({ message: 'No images uploaded. Use the field name "images".' });
+    return;
+  }
+  try {
+    const images = await addRoomTypeImages(roomTypeId, urls);
+    if (images === null) {
+      await discardFiles();
+      res.status(404).json({ message: 'Room type not found' });
+      return;
+    }
+    res.status(201).json(images);
+  } catch (err) {
+    await discardFiles();
+    sendError(err, res);
+  }
+}
+
+export async function deleteRoomTypeImageHandler(req: Request, res: Response) {
+  const roomTypeId = String(req.params.id);
+  const imageId = String(req.params.imageId);
+  if (!UUID_REGEX.test(roomTypeId) || !UUID_REGEX.test(imageId)) {
+    res.status(400).json({ message: 'Invalid id' });
+    return;
+  }
+  try {
+    const url = await deleteRoomTypeImage(roomTypeId, imageId);
+    if (!url) {
+      res.status(404).json({ message: 'Room photo not found' });
+      return;
+    }
+    await removeUploadedFiles([url]);
     res.status(204).send();
   } catch (err) {
     sendError(err, res);

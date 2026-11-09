@@ -8,22 +8,25 @@ import Button from '../components/ui/Button';
 import type { Hotel } from '../types/hotel';
 import { getErrorMessage } from '../utils/errors';
 import { formatPrice } from '../utils/booking';
+import { useFeedback } from '../components/ui/FeedbackProvider';
 
 export default function AdminHotelsPage() {
   const dispatch = useAppDispatch();
   const { items, status } = useAppSelector((state) => state.hotels);
   const [error, setError] = useState('');
+  const { confirm, notify } = useFeedback();
 
   useEffect(() => {
     dispatch(loadHotels());
   }, [dispatch]);
 
   async function handleDelete(hotel: Hotel) {
-    if (!window.confirm(`Delete "${hotel.name}"? Its photos and rooms are deleted too.`)) return;
+    if (!await confirm({ title: `Delete ${hotel.name}?`, message: 'This also removes its photos and room types. This action cannot be undone.', confirmLabel: 'Delete property', destructive: true })) return;
     setError('');
     try {
       await deleteHotelRequest(hotel.id);
       dispatch(loadHotels());
+      notify('Property deleted.');
     } catch (err) {
       setError(getErrorMessage(err));
     }

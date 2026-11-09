@@ -40,6 +40,54 @@ export async function listBookings(filters: ListFilters) {
   };
 }
 
+export async function getAdminDashboard() {
+  const [hotels, rooms, bookings, revenue, reviews, latest] = await Promise.all([
+    pool.query('SELECT COUNT(*)::int AS total FROM hotels'),
+    pool.query('SELECT COUNT(*)::int AS total FROM room_types'),
+    pool.query(`SELECT COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE status = 'pending')::int AS pending,
+      COUNT(*) FILTER (WHERE status IN ('pending', 'approved'))::int AS active
+      FROM bookings`),
+    pool.query(`SELECT COALESCE(SUM(amount), 0)::numeric(12,2) AS total
+      FROM payments WHERE status = 'paid'`),
+    pool.query('SELECT COUNT(*)::int AS total FROM reviews'),
+    pool.query(`${BOOKING_SELECT} ORDER BY b.created_at DESC LIMIT 6`),
+  ]);
+
+  return {
+    hotels: Number(hotels.rows[0].total),
+    roomTypes: Number(rooms.rows[0].total),
+    bookings: Number(bookings.rows[0].total),
+    pendingBookings: Number(bookings.rows[0].pending),
+    activeBookings: Number(bookings.rows[0].active),
+    paidRevenue: String(revenue.rows[0].total),
+    reviews: Number(reviews.rows[0].total),
+    recentBookings: latest.rows,
+  };
+}
+
+export async function listAdminReviews(page: number, pageSize: number, search?: string) {
+  const values: unknown[] = [];
+  let where = '';
+  if (search) {
+    values.push(`%${search.replace(/[\\%_]/g, '\\$&')}%`);
+    where = `WHERE h.name ILIKE $1 OR u.full_name ILIKE $1 OR r.comment ILIKE $1`;
+  }
+  const count = await pool.query(
+    `SELECT COUNT(*)::int AS total FROM reviews r JOIN hotels h ON h.id = r.hotel_id JOIN users u ON u.id = r.user_id ${where}`,
+    values
+  );
+  const offset = values.length;
+  const rows = await pool.query(
+    `SELECT r.id, r.rating, r.comment, r.created_at, r.booking_id,
+       h.id AS hotel_id, h.name AS hotel_name, u.full_name AS author
+     FROM reviews r JOIN hotels h ON h.id = r.hotel_id JOIN users u ON u.id = r.user_id
+     ${where} ORDER BY r.created_at DESC LIMIT $${offset + 1} OFFSET $${offset + 2}`,
+    [...values, pageSize, (page - 1) * pageSize]
+  );
+  return { items: rows.rows, total: Number(count.rows[0].total), page, pageSize };
+}
+
 export async function findBookingAdmin(id: string) {
   const result = await pool.query(`${BOOKING_SELECT} WHERE b.id = $1`, [id]);
   return result.rows[0] ?? null;
@@ -78,6 +126,19 @@ export async function markCancelled(id: string) {
     [id]
   );
   if (!result.rowCount) throw new HttpError(409, 'This booking can no longer be cancelled');
+}
+
+export async function markCompleted(id: string) {
+  const result = await pool.query(
+    `UPDATE bookings SET status = 'completed'
+     WHERE id = $1 AND status = 'approved' AND check_out <= CURRENT_DATE`,
+    [id]
+  );
+  if (result.rowCount) return;
+  const booking = await pool.query('SELECT status FROM bookings WHERE id = $1', [id]);
+  if (!booking.rows.length) throw new HttpError(404, 'Booking not found');
+  if (booking.rows[0].status !== 'approved') throw new HttpError(409, 'Only approved bookings can be completed');
+  throw new HttpError(409, 'The stay cannot be completed before its check-out date');
 }
 
 /* ---------- Modifying ---------- */

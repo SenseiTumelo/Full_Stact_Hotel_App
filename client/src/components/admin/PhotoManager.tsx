@@ -4,6 +4,8 @@ import Button from '../ui/Button';
 import { deleteHotelImageRequest, uploadHotelImagesRequest } from '../../services/api';
 import { getErrorMessage } from '../../utils/errors';
 import { imageUrl } from '../../utils/imageUrl';
+import { useFeedback } from '../ui/FeedbackProvider';
+import { Trash2 } from 'lucide-react';
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -18,6 +20,7 @@ export default function PhotoManager({ hotelId, images, onChanged }: PhotoManage
   const [inputKey, setInputKey] = useState(0); // changing the key empties the file input
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const { confirm, notify } = useFeedback();
 
   async function handleUpload(event: FormEvent) {
     event.preventDefault();
@@ -34,6 +37,7 @@ export default function PhotoManager({ hotelId, images, onChanged }: PhotoManage
       setFiles([]);
       setInputKey((key) => key + 1);
       onChanged();
+      notify(`${files.length} photo${files.length === 1 ? '' : 's'} uploaded.`);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -42,11 +46,12 @@ export default function PhotoManager({ hotelId, images, onChanged }: PhotoManage
   }
 
   async function handleDelete(imageId: string) {
-    if (!window.confirm('Delete this photo?')) return;
+    if (!await confirm({ title: 'Delete this photo?', message: 'This image will be removed from the property gallery.', confirmLabel: 'Delete photo', destructive: true })) return;
     setError('');
     try {
       await deleteHotelImageRequest(hotelId, imageId);
       onChanged();
+      notify('Photo deleted.');
     } catch (err) {
       setError(getErrorMessage(err));
     }
@@ -68,7 +73,7 @@ export default function PhotoManager({ hotelId, images, onChanged }: PhotoManage
                 aria-label={`Delete photo ${index + 1}`}
                 onClick={() => handleDelete(image.id)}
               >
-                ✕
+                <Trash2 size={17} aria-hidden="true" />
               </button>
             </div>
           ))}

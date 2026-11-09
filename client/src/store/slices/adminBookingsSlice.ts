@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
   approveBookingRequest,
   cancelBookingAdminRequest,
+  completeBookingRequest,
   fetchAdminBooking,
   fetchAdminBookings,
   modifyBookingRequest,
@@ -73,6 +74,17 @@ export const cancelAdminBooking = createAsyncThunk<Booking, string, Config>(
   async (id, { rejectWithValue }) => {
     try {
       return await cancelBookingAdminRequest(id);
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err));
+    }
+  }
+);
+
+export const completeAdminBooking = createAsyncThunk<Booking, string, Config>(
+  'adminBookings/complete',
+  async (id, { rejectWithValue }) => {
+    try {
+      return await completeBookingRequest(id);
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }
@@ -153,13 +165,16 @@ const slice = createSlice({
             : 'Booking cancelled.'
         )
       )
+      .addCase(completeAdminBooking.fulfilled, (state, action) =>
+        applyUpdated(state, action.payload, 'Stay marked as completed.')
+      )
       .addCase(modifyAdminBooking.fulfilled, (state, action) =>
         applyUpdated(state, action.payload, 'Booking updated.')
       )
 
       .addMatcher(
         (action) =>
-          [approveAdminBooking.pending.type, cancelAdminBooking.pending.type, modifyAdminBooking.pending.type].includes(action.type),
+          [approveAdminBooking.pending.type, cancelAdminBooking.pending.type, completeAdminBooking.pending.type, modifyAdminBooking.pending.type].includes(action.type),
         (state) => {
           state.actionBusy = true;
           state.actionError = null;
@@ -168,7 +183,7 @@ const slice = createSlice({
       )
       .addMatcher(
         (action) =>
-          [approveAdminBooking.rejected.type, cancelAdminBooking.rejected.type, modifyAdminBooking.rejected.type].includes(action.type),
+          [approveAdminBooking.rejected.type, cancelAdminBooking.rejected.type, completeAdminBooking.rejected.type, modifyAdminBooking.rejected.type].includes(action.type),
         (state, action) => {
           state.actionBusy = false;
           state.actionError = (action as { payload?: string }).payload ?? 'Something went wrong';

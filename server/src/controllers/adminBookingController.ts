@@ -5,6 +5,7 @@ import {
   findBookingAdmin,
   findPaidPayment,
   listBookings,
+  markCompleted,
   markCancelled,
   modifyBooking,
 } from '../repositories/adminBookingRepository';
@@ -65,6 +66,17 @@ export async function approveBookingHandler(req: Request, res: Response) {
   if (!id) return;
   try {
     await approveBooking(id);
+    res.json(await findBookingAdmin(id));
+  } catch (err) {
+    sendError(err, res);
+  }
+}
+
+export async function completeBookingHandler(req: Request, res: Response) {
+  const id = readId(req, res);
+  if (!id) return;
+  try {
+    await markCompleted(id);
     res.json(await findBookingAdmin(id));
   } catch (err) {
     sendError(err, res);

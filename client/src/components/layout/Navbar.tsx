@@ -1,33 +1,34 @@
+import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
+import { CalendarDays, Compass, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
   const { user, status } = useAppSelector((state) => state.auth);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="navbar">
       <div className="container navbar-inner">
-        <Link to="/" className="brand">Sensei Hotels</Link>
+        <Link to="/" className="brand" aria-label="Sensei Hotels home"><span className="brand-monogram">S</span><span className="brand-copy"><strong>Sensei</strong><small>Hotels & stays</small></span></Link>
 
-        <nav className="nav-links" aria-label="Main">
-          <NavLink to="/" end>Explore</NavLink>
-          <NavLink to="/my-trips">My trips</NavLink>
-          {user?.role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
-          <a href="#">About</a>
+        <nav className={`nav-links${menuOpen ? ' nav-links-open' : ''}`} aria-label="Main navigation">
+          <NavLink to="/" end onClick={() => setMenuOpen(false)}><Compass size={16} /> Explore stays</NavLink>
+          <NavLink to="/my-trips" onClick={() => setMenuOpen(false)}><CalendarDays size={16} /> My trips</NavLink>
+          {user?.role === 'admin' && <NavLink to="/admin" onClick={() => setMenuOpen(false)}><LayoutDashboard size={16} /> Admin</NavLink>}
         </nav>
 
         <div className="nav-right">
-          <a href="#">Help</a>
-
           {status === 'ready' && user && (
             <>
+              <Link to="/my-trips" className="nav-bookings"><CalendarDays size={16} /> My bookings</Link>
               <span className="avatar" title={user.email} aria-label={`Signed in as ${user.full_name}`}>
                 {user.full_name.charAt(0).toUpperCase()}
               </span>
-              <button type="button" className="link-button" onClick={() => dispatch(logout())}>
-                Sign out
+              <button type="button" className="nav-signout" onClick={() => dispatch(logout())} aria-label="Sign out">
+                <LogOut size={17} />
               </button>
             </>
           )}
@@ -36,6 +37,9 @@ export default function Navbar() {
             <Link to="/login" className="btn btn-primary nav-signin">Sign in</Link>
           )}
         </div>
+        <button type="button" className="nav-menu-toggle" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </div>
     </header>
   );

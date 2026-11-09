@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import Button from '../ui/Button';
 import type { HotelSearch } from '../../services/api';
+import { MapPin, Search, Star, Wallet } from 'lucide-react';
 
 type SearchBarProps = {
   onSearch: (search: HotelSearch) => void;
@@ -22,13 +23,13 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="search-bar">
+    <form onSubmit={handleSubmit} className="search-bar" aria-label="Find a hotel">
       <div className="field">
-        <label htmlFor="city">Where to?</label>
+        <label htmlFor="city"><MapPin size={14} /> Destination</label>
         <input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" />
       </div>
       <div className="field">
-        <label htmlFor="stars">Min stars</label>
+        <label htmlFor="stars"><Star size={14} /> Hotel rating</label>
         <select id="stars" value={minStars} onChange={(e) => setMinStars(e.target.value)}>
           <option value="">Any</option>
           <option value="3">3+</option>
@@ -37,10 +38,10 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         </select>
       </div>
       <div className="field">
-        <label htmlFor="price">Max price</label>
+        <label htmlFor="price"><Wallet size={14} /> Max price per night</label>
         <input id="price" type="number" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="R per night" />
       </div>
-      <Button type="submit">Search</Button>
+      <Button type="submit" variant="dark"><Search size={17} /> Find a stay</Button>
     </form>
   );
 }

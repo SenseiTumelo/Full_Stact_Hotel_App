@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
   approveAdminBooking,
   cancelAdminBooking,
+  completeAdminBooking,
 
   loadAdminBooking,
   modifyAdminBooking,
@@ -15,6 +16,7 @@ import Button from '../components/ui/Button';
 import Text from '../components/ui/Text';
 import type { Booking } from '../types/booking';
 import { formatDate, formatPrice, nightsBetween, paymentLabel, todayIso } from '../utils/booking';
+import { useFeedback } from '../components/ui/FeedbackProvider';
 
 function ModifyForm({ booking }: { booking: Booking }) {
   const dispatch = useAppDispatch();
@@ -76,10 +78,15 @@ export default function AdminReservationDetailPage() {
   const { current: booking, currentStatus, actionBusy, actionError, actionNote } = useAppSelector(
     (state) => state.adminBookings
   );
+  const { confirm, notify } = useFeedback();
 
   useEffect(() => {
     if (id) dispatch(loadAdminBooking(id));
   }, [id, dispatch]);
+
+  useEffect(() => {
+    if (actionNote) notify(actionNote);
+  }, [actionNote, notify]);
 
   if (currentStatus === 'failed') {
     return (
@@ -93,6 +100,7 @@ export default function AdminReservationDetailPage() {
 
   const canApprove = booking.status === 'pending';
   const canChange = booking.status === 'pending' || booking.status === 'approved';
+  const canComplete = booking.status === 'approved' && booking.check_out <= todayIso();
   const isPaid = booking.payment_status === 'paid';
   const nights = nightsBetween(booking.check_in, booking.check_out);
 
@@ -101,10 +109,11 @@ export default function AdminReservationDetailPage() {
   }
 
   function handleCancel() {
-    const question = isPaid
+    const message = isPaid
       ? `Cancel ${booking!.booking_reference} and refund ${formatPrice(booking!.total_price)} to the guest's card?`
-      : `Cancel ${booking!.booking_reference}?`;
-    if (window.confirm(question)) dispatch(cancelAdminBooking(booking!.id));
+      : `Cancel reservation ${booking!.booking_reference}?`;
+    confirm({ title: isPaid ? 'Cancel and refund reservation?' : 'Cancel reservation?', message, confirmLabel: isPaid ? 'Cancel and refund' : 'Cancel reservation', destructive: true })
+      .then((accepted) => { if (accepted) dispatch(cancelAdminBooking(booking!.id)); });
   }
 
   return (
@@ -162,6 +171,11 @@ export default function AdminReservationDetailPage() {
             {canApprove && (
               <Button variant="dark" onClick={handleApprove} disabled={actionBusy}>
                 {actionBusy ? 'Working...' : 'Approve booking'}
+              </Button>
+            )}
+            {canComplete && (
+              <Button variant="dark" onClick={() => dispatch(completeAdminBooking(booking.id))} disabled={actionBusy}>
+                {actionBusy ? 'Working...' : 'Mark stay completed'}
               </Button>
             )}
             <Button variant="secondary" className="btn-danger" onClick={handleCancel} disabled={actionBusy}>

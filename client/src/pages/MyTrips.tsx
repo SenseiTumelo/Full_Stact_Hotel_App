@@ -5,6 +5,8 @@ import BookingCard from '../components/bookings/BookingCard';
 import Text from '../components/ui/Text';
 import type { Booking } from '../types/booking';
 import { todayIso } from '../utils/booking';
+import { useFeedback } from '../components/ui/FeedbackProvider';
+import { getErrorMessage } from '../utils/errors';
 
 const TABS = [
   { key: 'upcoming', label: 'Upcoming' },
@@ -23,6 +25,7 @@ export default function MyTrips() {
   const dispatch = useAppDispatch();
   const { mine, mineStatus, mineError } = useAppSelector((state) => state.booking);
   const [tab, setTab] = useState<Tab>('upcoming');
+  const { confirm, notify } = useFeedback();
 
   useEffect(() => {
     dispatch(loadMyBookings());
@@ -31,8 +34,14 @@ export default function MyTrips() {
   const today = todayIso();
   const visible = mine.filter((booking) => tabFor(booking, today) === tab);
 
-  function handleCancel(id: string) {
-    if (window.confirm('Cancel this booking?')) dispatch(cancelMyBooking(id));
+  async function handleCancel(id: string) {
+    if (!await confirm({ title: 'Cancel this stay?', message: 'This reservation will be cancelled. You may need to contact the property about payments or refunds.', confirmLabel: 'Cancel booking', destructive: true })) return;
+    try {
+      await dispatch(cancelMyBooking(id)).unwrap();
+      notify('Your reservation has been cancelled.');
+    } catch (error) {
+      notify(getErrorMessage(error), 'error');
+    }
   }
 
   return (

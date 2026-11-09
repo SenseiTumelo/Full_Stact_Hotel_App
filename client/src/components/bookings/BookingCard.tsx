@@ -3,6 +3,7 @@ import type { Booking, BookingStatus } from "../../types/booking";
 import { formatDate, formatPrice, todayIso } from "../../utils/booking";
 import { imageUrl } from "../../utils/imageUrl";
 import Button from "../ui/Button";
+import { ArrowRight, Check } from 'lucide-react';
 
 const STATUS_LABEL: Record<BookingStatus, string> = {
   pending: "Awaiting confirmation",
@@ -41,7 +42,7 @@ export default function BookingCard({ booking, onCancel }: BookingCardProps) {
           {booking.room_name} · {booking.hotel_city}
         </span>
         <span>
-          {formatDate(booking.check_in)} → {formatDate(booking.check_out)}
+          {formatDate(booking.check_in)} <ArrowRight size={14} /> {formatDate(booking.check_out)}
         </span>
         <span className="summary-muted">
           {booking.rooms} room{booking.rooms === 1 ? "" : "s"} ·{" "}
@@ -76,7 +77,7 @@ export default function BookingCard({ booking, onCancel }: BookingCardProps) {
           </Link>
         )}
         {booking.has_review && (
-          <span className="summary-muted">Reviewed ✓</span>
+          <span className="summary-muted booking-reviewed"><Check size={15} /> Reviewed</span>
         )}
       </div>
     </article>

@@ -9,6 +9,8 @@ import {
 import type { RoomType, RoomTypeInput } from '../../types/hotel';
 import { getErrorMessage } from '../../utils/errors';
 import { formatPrice } from '../../utils/booking';
+import { useFeedback } from '../ui/FeedbackProvider';
+import RoomPhotoManager from './RoomPhotoManager';
 
 type RoomFormValues = {
   name: string;
@@ -31,6 +33,7 @@ export default function RoomManager({ hotelId, rooms, onChanged }: RoomManagerPr
   const [values, setValues] = useState<RoomFormValues>(EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const { confirm, notify } = useFeedback();
 
   const set = (key: keyof RoomFormValues) => (value: string) =>
     setValues((current) => ({ ...current, [key]: value }));
@@ -70,6 +73,7 @@ export default function RoomManager({ hotelId, rooms, onChanged }: RoomManagerPr
       else if (editing) await updateRoomTypeRequest(editing, payload);
       setEditing(null);
       onChanged();
+      notify(editing === 'new' ? 'Room type added.' : 'Room type updated.');
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -78,11 +82,12 @@ export default function RoomManager({ hotelId, rooms, onChanged }: RoomManagerPr
   }
 
   async function handleDelete(room: RoomType) {
-    if (!window.confirm(`Delete "${room.name}"?`)) return;
+    if (!await confirm({ title: `Delete ${room.name}?`, message: 'Guests will no longer be able to book this room type.', confirmLabel: 'Delete room', destructive: true })) return;
     setError('');
     try {
       await deleteRoomTypeRequest(room.id);
       onChanged();
+      notify('Room type deleted.');
     } catch (err) {
       setError(getErrorMessage(err));
     }
@@ -100,18 +105,21 @@ export default function RoomManager({ hotelId, rooms, onChanged }: RoomManagerPr
       )}
 
       {rooms.map((room) => (
-        <div key={room.id} className="room-admin-row">
-          <div>
-            <strong>{room.name}</strong>
-            <div className="summary-muted">
-              {formatPrice(room.price_per_night)} per night · sleeps {room.capacity} · {room.total_rooms} room
-              {room.total_rooms === 1 ? '' : 's'} available to sell
+        <div key={room.id} className="room-admin-entry">
+          <div className="room-admin-row">
+            <div>
+              <strong>{room.name}</strong>
+              <div className="summary-muted">
+                {formatPrice(room.price_per_night)} per night · sleeps {room.capacity} · {room.total_rooms} room
+                {room.total_rooms === 1 ? '' : 's'} available to sell
+              </div>
+            </div>
+            <div className="row-actions">
+              <Button variant="secondary" className="btn-small" onClick={() => startEdit(room)}>Edit</Button>
+              <Button variant="secondary" className="btn-small btn-danger" onClick={() => handleDelete(room)}>Delete</Button>
             </div>
           </div>
-          <div className="row-actions">
-            <Button variant="secondary" className="btn-small" onClick={() => startEdit(room)}>Edit</Button>
-            <Button variant="secondary" className="btn-small btn-danger" onClick={() => handleDelete(room)}>Delete</Button>
-          </div>
+          <RoomPhotoManager roomTypeId={room.id} roomName={room.name} images={room.images ?? []} onChanged={onChanged} />
         </div>
       ))}
 
@@ -144,6 +152,7 @@ export default function RoomManager({ hotelId, rooms, onChanged }: RoomManagerPr
           <p className="summary-muted">
             "Rooms of this type" is your stock: how many can be booked on the same night. Guests see what is left after bookings.
           </p>
+          {editing === 'new' && <p className="summary-muted">Save this room type first. You can add its photos as soon as it appears in the list.</p>}
 
           {error && <p role="alert" className="form-error">{error}</p>}
 

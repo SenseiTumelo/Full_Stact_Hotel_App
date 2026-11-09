@@ -7,6 +7,7 @@ import Breadcrumbs from '../components/layout/Breadcrumbs';
 import StepIndicator from '../components/bookings/StepIndicator';
 import SummaryCard from '../components/bookings/SummaryCard';
 import Button from '../components/ui/Button';
+import { ArrowLeft } from 'lucide-react';
 
 export default function BookingDetailsPage() {
   const dispatch = useAppDispatch();
@@ -133,7 +134,7 @@ export default function BookingDetailsPage() {
           </Button>
 
           <Link to={`/hotels/${draft.hotelId}/book`} className="summary-muted">
-            ← Change dates or room
+            <ArrowLeft size={15} /> Change dates or room
           </Link>
         </form>
 

@@ -61,8 +61,10 @@ export async function findHotelById(id: string) {
       [id]
     ),
     pool.query(
-      `SELECT id, name, capacity, price_per_night, currency, description, total_rooms
-       FROM room_types WHERE hotel_id = $1 ORDER BY price_per_night`,
+      `SELECT rt.id, rt.name, rt.capacity, rt.price_per_night, rt.currency, rt.description, rt.total_rooms,
+         COALESCE((SELECT json_agg(json_build_object('id', rti.id, 'url', rti.url) ORDER BY rti.position)
+                   FROM room_type_images rti WHERE rti.room_type_id = rt.id), '[]'::json) AS images
+       FROM room_types rt WHERE rt.hotel_id = $1 ORDER BY rt.price_per_night`,
       [id]
     ),
   ]);

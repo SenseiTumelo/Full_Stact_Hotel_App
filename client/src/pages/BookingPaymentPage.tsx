@@ -11,6 +11,7 @@ import CheckoutForm from '../components/bookings/CheckoutForm';
 import Button from '../components/ui/Button';
 import { getErrorMessage } from '../utils/errors';
 import { formatDate, formatPrice } from '../utils/booking';
+import { ArrowRight } from 'lucide-react';
 
 type Method = 'online' | 'hotel';
 
@@ -146,7 +147,7 @@ export default function BookingPaymentPage() {
           <p className="summary-muted">{booking.room_name}</p>
           <hr />
           <p style={{ margin: 0 }}>
-            {formatDate(booking.check_in)} → {formatDate(booking.check_out)}
+            {formatDate(booking.check_in)} <ArrowRight size={14} /> {formatDate(booking.check_out)}
           </p>
           <p className="summary-muted">
             {booking.rooms} room{booking.rooms === 1 ? '' : 's'} · {booking.guests} guest{booking.guests === 1 ? '' : 's'}
