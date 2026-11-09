@@ -14,6 +14,7 @@ import paymentRoutes from './routes/paymentRoutes';
 import { stripeWebhook } from './controllers/paymentController';
 import adminRoutes from './routes/adminRoutes';
 import { getAmenities } from './controllers/hotelController';
+import { pool } from './config/db';
 import reviewRoutes from './routes/reviewRoutes';
 
 
@@ -35,8 +36,14 @@ app.use(passport.initialize());
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-app.get('/api/v1/health', (_req, res) => {
-  res.json({ status: 'ok' });
+app.get('/api/v1/health', async (_req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', database: 'connected' });
+  } catch (error) {
+    console.error('Health check database query failed:', error instanceof Error ? error.name : 'UnknownError');
+    res.status(503).json({ status: 'error', database: 'unavailable' });
+  }
 });
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/auth', authRoutes);

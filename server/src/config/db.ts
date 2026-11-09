@@ -5,6 +5,9 @@ types.setTypeParser(1082, (value: string) => value);
 
 
 export const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL || (() => {
+        throw new Error('Missing environment variable: DATABASE_URL');
+    })(),
+    connectionTimeoutMillis: 5000,
 
 });
