@@ -63,6 +63,11 @@ CREATE TABLE bookings (
   rooms          SMALLINT NOT NULL CHECK (rooms > 0),
   guests         SMALLINT NOT NULL CHECK (guests > 0),
   total_price    NUMERIC(10,2) NOT NULL,           -- snapshot at booking time
+  booking_reference TEXT NOT NULL UNIQUE,
+  guest_name     TEXT NOT NULL,
+  guest_email    TEXT NOT NULL,
+  guest_phone    TEXT NOT NULL,
+  special_request TEXT,
   status         booking_status NOT NULL DEFAULT 'pending',
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   CHECK (check_out > check_in)
@@ -103,23 +108,15 @@ CREATE TABLE notifications (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE hotel_amenities (
-  hotel_id    UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
-  amenity_id  INT  NOT NULL REFERENCES amenities(id) ON DELETE CASCADE,
-  PRIMARY KEY (hotel_id, amenity_id)
-);
-
 CREATE TABLE amenities (
   id    SERIAL PRIMARY KEY,
   name  TEXT NOT NULL UNIQUE                       
 );
 
-CREATE TABLE oauth_accounts (
-  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id          UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  provider         TEXT NOT NULL,                
-  provider_user_id TEXT NOT NULL,
-  UNIQUE (provider, provider_user_id)
+CREATE TABLE hotel_amenities (
+  hotel_id    UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  amenity_id  INT  NOT NULL REFERENCES amenities(id) ON DELETE CASCADE,
+  PRIMARY KEY (hotel_id, amenity_id)
 );
 
 -- Performance indexes
