@@ -10,7 +10,8 @@ import { useFeedback } from '../components/ui/FeedbackProvider';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
 import Button from '../components/ui/Button';
 
-const GOOGLE_URL = `${import.meta.env.VITE_API_URL || '/api/v1'}/auth/google`;
+const API_BASE = import.meta.env.PROD ? '/api/v1' : import.meta.env.VITE_API_URL || '/api/v1';
+const GOOGLE_URL = `${API_BASE}/auth/google`;
 
 const copy = {
   login: {

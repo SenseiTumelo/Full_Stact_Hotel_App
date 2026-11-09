@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently --names \"SERVER,CLIENT\" --prefix-colors \"cyan,magenta\" --kill-others-on-fail \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
-    "dev:server": "npm --prefix server run dev",
+    "dev": "concurrently --names \"SERVER,CLIENT\" --prefix-colors \"cyan,magenta\" --kill-others-on-fail \"npm --prefix client/server run dev\" \"npm --prefix client run dev\"",
+    "dev:server": "npm --prefix client/server run dev",
     "dev:client": "npm --prefix client run dev",
-    "install:all": "npm install && npm --prefix server install && npm --prefix client install"
+    "install:all": "npm install && npm --prefix client/server install && npm --prefix client install"
   },
   "devDependencies": {
     "concurrently": "^10.0.6"

@@ -6,7 +6,7 @@
       "framework": "vite"
     },
     "stay-hotel-api": {
-      "root": "server",
+      "root": "client/server",
       "framework": "express",
       "buildCommand": "npm install && npm run build"
     }
