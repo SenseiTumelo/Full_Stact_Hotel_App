@@ -3,8 +3,9 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { env } from './env';
 import { findOrCreateGoogleUser } from '../repositories/userRepository';
 
-passport.use(
-  new GoogleStrategy(
+if (env.googleEnabled) {
+  passport.use(
+    new GoogleStrategy(
     {
       clientID: env.googleClientId,
       clientSecret: env.googleClientSecret,
@@ -32,5 +33,6 @@ passport.use(
         done(err as Error);
       }
     }
-  )
-);
+    )
+  );
+}

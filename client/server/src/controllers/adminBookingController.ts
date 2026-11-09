@@ -101,6 +101,9 @@ export async function cancelBookingHandler(req: Request, res: Response) {
     // Refund FIRST. If Stripe fails we stop here and nothing has changed.
     const paid = await findPaidPayment(id);
     if (paid) {
+      if (!stripe) {
+        throw new HttpError(502, 'Online payments are not configured, so this booking cannot be refunded or cancelled.');
+      }
       try {
         await stripe.refunds.create(
           { payment_intent: paid.provider_ref },

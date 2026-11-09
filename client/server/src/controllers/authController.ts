@@ -12,6 +12,10 @@ const STATE_COOKIE = 'oauth_state';
 
 // Step 1: send the user to Google
 export function startGoogleLogin(req: Request, res: Response, next: NextFunction) {
+  if (!env.googleEnabled) {
+    res.status(503).json({ message: 'Google sign-in is not configured for this deployment.' });
+    return;
+  }
   // A random value we also keep in a cookie. It proves the user who comes back is the one who left.
   const state = crypto.randomBytes(16).toString('hex');
   res.cookie(STATE_COOKIE, state, { ...cookieOptions, maxAge: 10 * 60 * 1000 });

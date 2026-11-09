@@ -17,6 +17,10 @@ const bodySchema = z.object({
 
 // POST /payments/intent  (logged-in users only)
 export async function createPaymentIntent(req: Request, res: Response) {
+  if (!stripe) {
+    res.status(503).json({ message: 'Online payments are not configured for this deployment.' });
+    return;
+  }
   const parsed = bodySchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ message: 'Invalid booking id' });
@@ -71,6 +75,7 @@ async function handleSucceeded(intent: Stripe.PaymentIntent) {
 
   // The guest cancelled while the payment was in progress: give the money back
   if (payment.booking_status === 'cancelled') {
+    if (!stripe) throw new Error('Stripe is not configured');
     await stripe.refunds.create({ payment_intent: intent.id });
     await updatePaymentStatus(intent.id, 'refunded');
     return;
@@ -87,6 +92,10 @@ async function handleFailed(intent: Stripe.PaymentIntent) {
 
 // POST /payments/webhook  (called by Stripe, not by our React app)
 export async function stripeWebhook(req: Request, res: Response) {
+  if (!stripe || !env.stripeWebhookSecret) {
+    res.status(503).send('Stripe webhooks are not configured');
+    return;
+  }
   const signature = req.headers['stripe-signature'];
   if (!signature) {
     res.status(400).send('Missing signature');
