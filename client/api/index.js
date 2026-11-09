@@ -9,7 +9,7 @@ export default async function handler(request, response) {
     // path through the `path` query parameter in vercel.json.
     const incoming = new URL(request.url || '/', `https://${request.headers.host || 'localhost'}`);
     const originalPath = incoming.searchParams.get('path');
-    if (!originalPath || !originalPath.startsWith('/api/v1/')) {
+    if (!originalPath || !(originalPath.startsWith('/api/v1/') || originalPath.startsWith('/uploads/'))) {
       response.statusCode = 400;
       response.setHeader('content-type', 'application/json; charset=utf-8');
       response.end(JSON.stringify({ message: 'Invalid API route' }));

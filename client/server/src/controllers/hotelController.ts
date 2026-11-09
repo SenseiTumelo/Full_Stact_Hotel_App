@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import fs from 'fs/promises';
 import { findAllHotels, findHotelById, hotelExists, addHotelImages, findAllAmenities } from '../repositories/hotelRepository';
+import { removeUploadedFiles, saveUploadedFiles } from '../middleware/uploads';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -48,11 +48,7 @@ export async function uploadHotelImages(req: Request, res: Response) {
   const id = String(req.params.id);
   const files = (req.files as Express.Multer.File[] | undefined) ?? [];
 
-  // Multer has already saved the files to disk, so we must delete them if we reject the request
-  const discardFiles = () => Promise.all(files.map((f) => fs.unlink(f.path).catch(() => {})));
-
   if (!UUID_REGEX.test(id)) {
-    await discardFiles();
     res.status(400).json({ message: 'Invalid hotel id' });
     return;
   }
@@ -63,16 +59,15 @@ export async function uploadHotelImages(req: Request, res: Response) {
 
   try {
     if (!(await hotelExists(id))) {
-      await discardFiles();
       res.status(404).json({ message: 'Hotel not found' });
       return;
     }
 
-    const urls = files.map((f) => `/uploads/${f.filename}`);
+    const urls = await saveUploadedFiles(files);
     const images = await addHotelImages(id, urls);
     res.status(201).json(images);
   } catch (err) {
-    await discardFiles();
+    await removeUploadedFiles(files.map((f) => `/uploads/${f.filename}`).filter((url) => !url.endsWith('/undefined')));
     console.error(err);
     res.status(500).json({ message: 'Something went wrong' });
   }

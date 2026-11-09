@@ -10,6 +10,10 @@
   },
   "rewrites": [
     {
+      "source": "/uploads/(.*)",
+      "destination": "/api/index?path=/uploads/$1"
+    },
+    {
       "source": "/api/v1/(.*)",
       "destination": "/api/index?path=/api/v1/$1"
     },

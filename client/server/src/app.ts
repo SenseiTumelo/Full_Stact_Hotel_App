@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import path from 'path';
 import multer from 'multer';
 import type { Request, Response, NextFunction } from 'express';
 import { env } from './config/env';
@@ -34,7 +33,25 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
 
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.get('/uploads/:id', async (req, res) => {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(req.params.id)) {
+    res.status(404).end();
+    return;
+  }
+  try {
+    const result = await pool.query('SELECT content_type, data FROM uploaded_images WHERE id = $1', [req.params.id]);
+    if (!result.rows[0]) {
+      res.status(404).end();
+      return;
+    }
+    res.setHeader('Content-Type', result.rows[0].content_type);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.send(result.rows[0].data);
+  } catch (error) {
+    console.error('Image retrieval failed:', error instanceof Error ? error.name : 'UnknownError');
+    res.status(500).end();
+  }
+});
 
 app.get('/api/v1/health', async (_req, res) => {
   try {

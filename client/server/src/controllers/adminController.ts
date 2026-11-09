@@ -18,7 +18,7 @@ import {
   updateHotel,
   updateRoomType,
 } from '../repositories/adminHotelRepository';
-import { removeUploadedFiles } from '../utils/files';
+import { removeUploadedFiles, saveUploadedFiles } from '../middleware/uploads';
 import { sendError } from '../utils/httpError';
 import { uploadImages } from '../middleware/uploads';
 
@@ -152,11 +152,8 @@ export async function deleteRoomTypeHandler(req: Request, res: Response) {
 export async function uploadRoomTypeImagesHandler(req: Request, res: Response) {
   const roomTypeId = String(req.params.id);
   const files = (req.files as Express.Multer.File[] | undefined) ?? [];
-  const urls = files.map((file) => `/uploads/${file.filename}`);
-  const discardFiles = () => removeUploadedFiles(urls);
 
   if (!UUID_REGEX.test(roomTypeId)) {
-    await discardFiles();
     res.status(400).json({ message: 'Invalid room type id' });
     return;
   }
@@ -165,15 +162,16 @@ export async function uploadRoomTypeImagesHandler(req: Request, res: Response) {
     return;
   }
   try {
+    const urls = await saveUploadedFiles(files);
     const images = await addRoomTypeImages(roomTypeId, urls);
     if (images === null) {
-      await discardFiles();
+      await removeUploadedFiles(urls);
       res.status(404).json({ message: 'Room type not found' });
       return;
     }
     res.status(201).json(images);
   } catch (err) {
-    await discardFiles();
+    await removeUploadedFiles(files.map((file) => `/uploads/${file.filename}`).filter((url) => !url.endsWith('/undefined')));
     sendError(err, res);
   }
 }
