@@ -31,6 +31,11 @@ export async function fetchCurrentUser(): Promise<User> {
   return response.data;
 }
 
+export async function updateCurrentUserProfile(input: { fullName: string; phone: string | null }): Promise<User> {
+  const response = await api.patch('/auth/me', input);
+  return response.data;
+}
+
 export async function loginWithPasswordRequest(input: { email: string; password: string }): Promise<User> {
   const response = await api.post('/auth/login', input);
   return response.data;

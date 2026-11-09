@@ -2,9 +2,9 @@ import crypto from 'crypto';
 import type { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import { env } from '../config/env';
-import { createPasswordUser, findPasswordUserByEmail, findUserById } from '../repositories/userRepository';
+import { createPasswordUser, findPasswordUserByEmail, findUserById, updateUserProfile } from '../repositories/userRepository';
 import { AUTH_COOKIE, cookieMaxAgeMs, cookieOptions, signToken } from '../utils/token';
-import { registerSchema, loginSchema } from '../schemas/authSchemas';
+import { registerSchema, loginSchema, updateProfileSchema } from '../schemas/authSchemas';
 import { hashPassword, verifyPassword } from '../utils/password';
 import { HttpError, sendError } from '../utils/httpError';
 
@@ -51,6 +51,28 @@ export async function getMe(req: Request, res: Response) {
   res.json(user);
 }
 
+export async function updateMyProfile(req: Request, res: Response) {
+  const parsed = updateProfileSchema.safeParse(req.body);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    res.status(400).json({ message: `${issue.path.join('.')}: ${issue.message}` });
+    return;
+  }
+  try {
+    const user = await updateUserProfile(req.user!.id, {
+      fullName: parsed.data.fullName,
+      phone: parsed.data.phone?.trim() || null,
+    });
+    if (!user) {
+      res.status(404).json({ message: 'Your account could not be found.' });
+      return;
+    }
+    res.json(user);
+  } catch (err) {
+    sendError(err, res);
+  }
+}
+
 export function logout(_req: Request, res: Response) {
   res.clearCookie(AUTH_COOKIE, cookieOptions);
   res.status(204).send();
@@ -92,7 +114,7 @@ export async function loginWithPassword(req: Request, res: Response) {
       return;
     }
     res.cookie(AUTH_COOKIE, signToken(user.id), { ...cookieOptions, maxAge: cookieMaxAgeMs });
-    res.json({ id: user.id, email: user.email, full_name: user.full_name, avatar_url: user.avatar_url, role: user.role });
+    res.json({ id: user.id, email: user.email, full_name: user.full_name, phone: user.phone, avatar_url: user.avatar_url, role: user.role });
   } catch (err) {
     sendError(err, res);
   }

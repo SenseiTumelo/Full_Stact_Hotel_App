@@ -11,6 +11,7 @@ import {
   logout,
   registerWithPassword,
   startGoogleLogin,
+  updateMyProfile,
 } from '../controllers/authController';
 
 const router = Router();
@@ -35,6 +36,7 @@ router.get(
   finishGoogleLogin
 );
 router.get('/me', requireAuth, getMe);
+router.patch('/me', requireAuth, updateMyProfile);
 router.post('/logout', logout);
 
 export default router;

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
-import { CalendarDays, Compass, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
+import { CalendarDays, Compass, LayoutDashboard, LogOut, Menu, UserRound, X } from 'lucide-react';
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
@@ -24,9 +24,10 @@ export default function Navbar() {
           {status === 'ready' && user && (
             <>
               <Link to="/my-trips" className="nav-bookings"><CalendarDays size={16} /> My bookings</Link>
-              <span className="avatar" title={user.email} aria-label={`Signed in as ${user.full_name}`}>
-                {user.full_name.charAt(0).toUpperCase()}
-              </span>
+              <Link to="/profile" className="nav-profile" aria-label="Your profile" title="Your profile">
+                <UserRound size={17} /><span className="nav-profile-label">Profile</span>
+                <span className="avatar" aria-hidden="true">{user.full_name.charAt(0).toUpperCase()}</span>
+              </Link>
               <button type="button" className="nav-signout" onClick={() => dispatch(logout())} aria-label="Sign out">
                 <LogOut size={17} />
               </button>

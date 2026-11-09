@@ -65,9 +65,19 @@ export async function findOrCreateGoogleUser(profile: GoogleProfile) {
 
 export async function findUserById(id: string) {
   const result = await pool.query(
-    `SELECT id, email, full_name, avatar_url, role
+    `SELECT id, email, full_name, phone, avatar_url, role
      FROM users WHERE id = $1 AND deleted_at IS NULL`,
     [id]
+  );
+  return result.rows[0] ?? null;
+}
+
+export async function updateUserProfile(id: string, input: { fullName: string; phone: string | null }) {
+  const result = await pool.query(
+    `UPDATE users SET full_name = $1, phone = $2
+     WHERE id = $3 AND deleted_at IS NULL
+     RETURNING id, email, full_name, phone, avatar_url, role`,
+    [input.fullName, input.phone, id]
   );
   return result.rows[0] ?? null;
 }
@@ -76,7 +86,7 @@ export async function createPasswordUser(input: { email: string; fullName: strin
   const result = await pool.query(
     `INSERT INTO users (email, full_name, password_hash)
      VALUES ($1, $2, $3)
-     RETURNING id, email, full_name, avatar_url, role`,
+     RETURNING id, email, full_name, phone, avatar_url, role`,
     [input.email, input.fullName, input.passwordHash]
   );
   return result.rows[0];
@@ -84,7 +94,7 @@ export async function createPasswordUser(input: { email: string; fullName: strin
 
 export async function findPasswordUserByEmail(email: string) {
   const result = await pool.query(
-    `SELECT id, email, full_name, avatar_url, role, password_hash
+    `SELECT id, email, full_name, phone, avatar_url, role, password_hash
      FROM users WHERE email = $1 AND deleted_at IS NULL`,
     [email]
   );

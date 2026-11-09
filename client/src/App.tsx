@@ -21,6 +21,7 @@ import AdminReservationDetailPage from './pages/AdminReservationDetailPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminReviewsPage from './pages/AdminReviewsPage';
 import ReviewPage from './pages/ReviewPage';
+import ProfilePage from './pages/ProfilePage';
 
 function NotFound() {
   return (
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/register" element={<AuthPage mode="register" />} />
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route
   path="/my-trips/:id/review"
   element={<ProtectedRoute><ReviewPage /></ProtectedRoute>}
