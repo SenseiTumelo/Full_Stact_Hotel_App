@@ -4,20 +4,20 @@ const require = createRequire(import.meta.url);
 let appPromise;
 
 export default async function handler(request, response) {
-  // Vercel serves this as one stable function and forwards the original API
-  // path through the `path` query parameter in vercel.json.
-  const incoming = new URL(request.url, `https://${request.headers.host || 'localhost'}`);
-  const originalPath = incoming.searchParams.get('path');
-  if (!originalPath || !originalPath.startsWith('/api/v1/')) {
-    response.statusCode = 400;
-    response.setHeader('content-type', 'application/json; charset=utf-8');
-    response.end(JSON.stringify({ message: 'Invalid API route' }));
-    return;
-  }
-
-  incoming.searchParams.delete('path');
-  request.url = `${originalPath}${incoming.search}`;
   try {
+    // Vercel serves this as one stable function and forwards the original API
+    // path through the `path` query parameter in vercel.json.
+    const incoming = new URL(request.url || '/', `https://${request.headers.host || 'localhost'}`);
+    const originalPath = incoming.searchParams.get('path');
+    if (!originalPath || !originalPath.startsWith('/api/v1/')) {
+      response.statusCode = 400;
+      response.setHeader('content-type', 'application/json; charset=utf-8');
+      response.end(JSON.stringify({ message: 'Invalid API route' }));
+      return;
+    }
+
+    incoming.searchParams.delete('path');
+    request.url = `${originalPath}${incoming.search}`;
     appPromise ??= Promise.resolve().then(() => {
       const module = require('../server/dist/app.js');
       return module.default || module;
