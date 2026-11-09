@@ -3,8 +3,10 @@ import type { Amenity, Hotel, HotelDetails, HotelInput, RoomTypeInput } from '..
 import type { User } from '../types/user';
 import type { Booking, BookingList, BookingPayload, ModifyPayload, ReviewSummary, RoomAvailability } from '../types/booking';
 
+const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_URL,
   withCredentials: true,
 });
 
