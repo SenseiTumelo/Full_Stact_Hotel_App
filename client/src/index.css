@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@400;500;600;700&display=swap');
 
 :root {
   --color-bg: #f0eee4;          /* cream page background */
@@ -748,6 +748,31 @@ svg { flex-shrink: 0; }
 .auth-heading .eyebrow { color: #86703f; }
 .auth-heading h1 { margin: 3px 0 0; font-family: 'Playfair Display', Georgia, serif; font-size: 36px; font-weight: 500; }
 .auth-heading .auth-subtitle { margin: 0; line-height: 1.6; }
+
+/* Home page copy uses a readable, familiar text face with room to breathe. */
+.hero-home .hero-subtitle,
+.home-content .home-section-heading p:not(.eyebrow),
+.home-content .home-editorial-copy > p:not(.eyebrow) {
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  letter-spacing: 0.005em;
+}
+.hero-home .hero-subtitle { max-width: 50ch; margin-top: 22px; }
+.home-content .home-section-heading p:not(.eyebrow) { max-width: 58ch; margin-top: 12px; }
+.home-content .home-editorial-copy > p:not(.eyebrow) { max-width: 48ch; margin-top: 0; }
+.home-content .home-promises small {
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.home-content .home-state p { font-family: 'Roboto', Arial, sans-serif; font-size: 15px; line-height: 1.7; }
+
+@media (max-width: 700px) {
+  .hero-home .hero-subtitle,
+  .home-content .home-section-heading p:not(.eyebrow),
+  .home-content .home-editorial-copy > p:not(.eyebrow) { font-size: 15px; line-height: 1.7; }
+}
 .auth-google { width: 100%; gap: 10px; min-height: 48px; border-radius: 10px; font-weight: 600; }
 .google-mark { display: grid; place-items: center; width: 21px; height: 21px; border: 1px solid #e3dfd5; border-radius: 50%; color: #4285f4; background: #fff; font-family: Arial, sans-serif; font-size: 14px; font-weight: 700; }
 .auth-divider { display: flex; align-items: center; gap: 12px; color: #949188; font-size: 11px; }
