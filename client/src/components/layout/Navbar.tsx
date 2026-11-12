@@ -7,6 +7,7 @@ import { CalendarDays, Compass, LayoutDashboard, LogOut, Menu, UserRound, X } fr
 export default function Navbar() {
   const dispatch = useAppDispatch();
   const { user, status } = useAppSelector((state) => state.auth);
+  const isAdmin = user?.role === 'admin';
   const location = useLocation();
   const transparent = location.pathname === '/';
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,9 +18,11 @@ export default function Navbar() {
         <Link to="/" className="brand" aria-label="Sensei Hotels home"><span className="brand-monogram">S</span><span className="brand-copy"><strong>Sensei</strong><small>Hotels & stays</small></span></Link>
 
         <nav className={`nav-links${menuOpen ? ' nav-links-open' : ''}`} aria-label="Main navigation">
-          <NavLink to="/" end onClick={() => setMenuOpen(false)}><Compass size={16} /> Explore stays</NavLink>
-          <NavLink to="/my-trips" onClick={() => setMenuOpen(false)}><CalendarDays size={16} /> My trips</NavLink>
-          {user?.role === 'admin' && <NavLink to="/admin" onClick={() => setMenuOpen(false)}><LayoutDashboard size={16} /> Admin</NavLink>}
+          {!isAdmin && <>
+            <NavLink to="/" end onClick={() => setMenuOpen(false)}><Compass size={16} /> Explore stays</NavLink>
+            <NavLink to="/my-trips" onClick={() => setMenuOpen(false)}><CalendarDays size={16} /> My trips</NavLink>
+          </>}
+          {isAdmin && <NavLink to="/admin" onClick={() => setMenuOpen(false)}><LayoutDashboard size={16} /> Admin</NavLink>}
         </nav>
 
         <div className="nav-right">
