@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
+import Footer from './Footer';
 import FeedbackProvider from '../ui/FeedbackProvider';
 
 export default function Layout() {
@@ -9,6 +10,7 @@ export default function Layout() {
       <div className={`app-shell${isHome ? ' app-shell-home' : ''}`}>
         <Navbar />
         <Outlet />
+        <Footer />
       </div>
     </FeedbackProvider>
   );
