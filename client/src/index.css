@@ -523,8 +523,10 @@ h1, h2, h3, .page-title, .section-title { font-family: 'Playfair Display', Georg
 button, input, select, textarea { font-family: inherit; }
 svg { flex-shrink: 0; }
 
-.navbar { position: sticky; top: 0; z-index: 20; background: rgba(255, 254, 250, .96); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(231, 226, 215, .8); }
-.navbar-transparent { position: absolute; inset: 0 0 auto; background: linear-gradient(180deg, rgba(10, 17, 19, .62), rgba(10, 17, 19, .24) 72%, transparent); border-bottom-color: transparent; backdrop-filter: blur(3px); }
+.app-shell { padding-top: 78px; }
+.app-shell-home { padding-top: 0; }
+.navbar { position: fixed; inset: 0 0 auto; z-index: 20; background: rgba(255, 254, 250, .96); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(231, 226, 215, .8); }
+.navbar-transparent { background: linear-gradient(180deg, rgba(10, 17, 19, .62), rgba(10, 17, 19, .24) 72%, transparent); border-bottom-color: transparent; backdrop-filter: blur(3px); }
 .navbar-transparent .brand, .navbar-transparent .brand-copy strong { color: #fff; }
 .navbar-transparent .brand-monogram { border-color: rgba(255, 255, 255, .65); color: #fff; }
 .navbar-transparent .brand-copy small { color: rgba(255, 255, 255, .78); }
@@ -672,6 +674,8 @@ svg { flex-shrink: 0; }
 }
 
 @media (max-width: 850px) {
+  .app-shell { padding-top: 72px; }
+  .app-shell-home { padding-top: 0; }
   .navbar-inner { height: 72px; gap: 18px; }
   .brand { min-width: 154px; }
   .nav-right { margin-left: auto; gap: 9px; }
@@ -685,6 +689,8 @@ svg { flex-shrink: 0; }
   .search-bar > .btn { min-height: 46px; grid-column: 1 / -1; }
 }
 @media (max-width: 760px) {
+  .app-shell { padding-top: 68px; }
+  .app-shell-home { padding-top: 0; }
   .navbar-inner { position: relative; height: 68px; gap: 12px; }
   .brand { min-width: auto; }
   .nav-menu-toggle { display: grid; }
