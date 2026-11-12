@@ -69,7 +69,7 @@ export default function RoomPhotoManager({ roomTypeId, roomName, images, onChang
         </div>)}
       </div> : <EmptyState compact icon={ImagePlus} title="No room photos yet" description="Add images so guests can see this room before booking." />}
       <form className="room-photo-upload" onSubmit={handleUpload}>
-        <div className="field"><label htmlFor={`room-photos-${roomTypeId}`}>Choose photos (JPG, PNG or WEBP, up to 5 MB each)</label>
+        <div className="field"><label htmlFor={`room-photos-${roomTypeId}`}>Choose photos (jpg, png or webp, up to 5 megabytes each)</label>
           <input key={inputKey} id={`room-photos-${roomTypeId}`} type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => setFiles(Array.from(event.target.files ?? []))} />
         </div>
         <Button type="submit" disabled={busy || files.length === 0}>{busy ? 'Uploading…' : 'Upload photos'}</Button>

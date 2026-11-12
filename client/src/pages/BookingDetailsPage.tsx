@@ -71,7 +71,7 @@ export default function BookingDetailsPage() {
               minLength={2}
               maxLength={100}
               autoComplete="name"
-              placeholder="As shown on your ID"
+              placeholder="As shown on your identification"
               value={guestName}
               onChange={(event) => setGuestName(event.target.value)}
             />

@@ -54,7 +54,7 @@ export default function BookingConfirmedPage() {
         </div>
 
         <div className="reservation-dates">
-          <div><span>Check-in</span><strong>{formatDate(booking.check_in)}</strong><small>From 3:00 PM</small></div>
+          <div><span>Check-in</span><strong>{formatDate(booking.check_in)}</strong><small>From 3:00 in the afternoon</small></div>
           <div className="reservation-date-arrow"><ArrowRight size={18} /><small>{nightsBetween(booking.check_in, booking.check_out)} nights</small></div>
           <div><span>Check-out</span><strong>{formatDate(booking.check_out)}</strong><small>By 11:00 AM</small></div>
         </div>

@@ -120,7 +120,7 @@ export default function HotelForm({ initial, amenities, submitLabel, onSubmit }:
           <legend>Amenities &amp; facilities</legend>
           {amenities.length > 0 && <span>{amenityIds.length} selected</span>}
         </div>
-        <p className="amenity-help">Tick everything available to guests at this hotel, such as Wi-Fi, TV, or a swimming pool.</p>
+        <p className="amenity-help">Tick everything available to guests at this hotel, such as Wi-Fi, television, or a swimming pool.</p>
         {amenities.length > 0 ? (
           <div className="amenity-options">
             {amenities.map((amenity) => {

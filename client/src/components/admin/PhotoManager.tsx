@@ -83,7 +83,7 @@ export default function PhotoManager({ hotelId, images, onChanged }: PhotoManage
 
       <form onSubmit={handleUpload} className="upload-row">
         <div className="field">
-          <label htmlFor="photos">Add photos (JPG, PNG or WEBP, up to 5 MB each)</label>
+          <label htmlFor="photos">Add photos (jpg, png or webp, up to 5 megabytes each)</label>
           <input
             key={inputKey}
             id="photos"
