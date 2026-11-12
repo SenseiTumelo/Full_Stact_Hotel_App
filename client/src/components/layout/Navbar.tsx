@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
 import { CalendarDays, Compass, LayoutDashboard, LogOut, Menu, UserRound, X } from 'lucide-react';
@@ -7,10 +7,12 @@ import { CalendarDays, Compass, LayoutDashboard, LogOut, Menu, UserRound, X } fr
 export default function Navbar() {
   const dispatch = useAppDispatch();
   const { user, status } = useAppSelector((state) => state.auth);
+  const location = useLocation();
+  const transparent = location.pathname === '/';
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="navbar">
+    <header className={`navbar${transparent ? ' navbar-transparent' : ''}`}>
       <div className="container navbar-inner">
         <Link to="/" className="brand" aria-label="Sensei Hotels home"><span className="brand-monogram">S</span><span className="brand-copy"><strong>Sensei</strong><small>Hotels & stays</small></span></Link>
 

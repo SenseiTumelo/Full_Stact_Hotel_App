@@ -524,6 +524,17 @@ button, input, select, textarea { font-family: inherit; }
 svg { flex-shrink: 0; }
 
 .navbar { position: sticky; top: 0; z-index: 20; background: rgba(255, 254, 250, .96); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(231, 226, 215, .8); }
+.navbar-transparent { position: absolute; inset: 0 0 auto; background: linear-gradient(180deg, rgba(10, 17, 19, .62), rgba(10, 17, 19, .24) 72%, transparent); border-bottom-color: transparent; backdrop-filter: blur(3px); }
+.navbar-transparent .brand, .navbar-transparent .brand-copy strong { color: #fff; }
+.navbar-transparent .brand-monogram { border-color: rgba(255, 255, 255, .65); color: #fff; }
+.navbar-transparent .brand-copy small { color: rgba(255, 255, 255, .78); }
+.navbar-transparent .nav-links a, .navbar-transparent .nav-right, .navbar-transparent .nav-profile { color: rgba(255, 255, 255, .92); }
+.navbar-transparent .nav-links a:hover, .navbar-transparent .nav-links a[aria-current='page'], .navbar-transparent .nav-profile:hover { color: #fff; }
+.navbar-transparent .nav-bookings, .navbar-transparent .nav-signout { border-color: rgba(255, 255, 255, .5); background: rgba(12, 18, 20, .2); color: #fff; }
+.navbar-transparent .nav-signout:hover { border-color: rgba(255, 255, 255, .8); color: #fff; }
+.navbar-transparent .nav-menu-toggle { border-color: rgba(255, 255, 255, .55); background: rgba(12, 18, 20, .38); color: #fff; }
+.navbar-transparent .nav-links-open { border-color: rgba(255, 255, 255, .18); background: rgba(17, 24, 25, .96); }
+.navbar-transparent .nav-links-open a { color: rgba(255, 255, 255, .9); }
 .navbar-inner { height: 78px; gap: 40px; }
 .brand { display: inline-flex; align-items: center; gap: 11px; min-width: 194px; letter-spacing: 0; }
 .brand-monogram { display: grid; place-items: center; width: 39px; height: 39px; border: 1px solid #b69b5e; color: #574b32; font-family: 'Playfair Display', Georgia, serif; font-size: 22px; }
@@ -680,6 +691,7 @@ svg { flex-shrink: 0; }
   .nav-links a { padding: 13px 4px; border-bottom: 1px solid var(--color-border); }
   .nav-links a:last-child { border-bottom: 0; }
   .hero-home { min-height: 0; padding: 66px 0 52px; background-position: 58% center; }
+  .navbar-transparent + .hero-home { padding-top: 132px; }
   .hero-title { font-size: clamp(43px, 13vw, 60px); }
   .hero-subtitle { font-size: 14px; }
   .hero-slot { margin-top: 36px; }
