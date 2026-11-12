@@ -117,6 +117,15 @@ export async function addHotelImages(hotelId: string, urls: string[]) {
 }
 
 export async function findAllAmenities() {
+  // Keep the standard amenity choices available even when the database was
+  // initialized before the default catalog was added. This insert is idempotent.
+  await pool.query(
+    `INSERT INTO amenities (name) VALUES
+      ('Air conditioning'), ('Balcony'), ('Breakfast included'), ('Family rooms'),
+      ('Free parking'), ('Gym'), ('Kitchen'), ('Restaurant'), ('Room service'),
+      ('Spa'), ('Swimming pool'), ('TV'), ('Wi-Fi')
+     ON CONFLICT (name) DO NOTHING`
+  );
   const result = await pool.query('SELECT id, name FROM amenities ORDER BY name');
   return result.rows;
 }

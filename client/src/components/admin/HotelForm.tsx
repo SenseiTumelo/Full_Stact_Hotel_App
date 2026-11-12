@@ -116,19 +116,32 @@ export default function HotelForm({ initial, amenities, submitLabel, onSubmit }:
       </p>
 
       <fieldset className="amenity-fieldset">
-        <legend>Facilities</legend>
-        <div className="checkbox-grid">
-          {amenities.map((amenity) => (
-            <label key={amenity.id} className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={amenityIds.includes(amenity.id)}
-                onChange={() => toggleAmenity(amenity.id)}
-              />
-              {amenity.name}
-            </label>
-          ))}
+        <div className="amenity-legend-row">
+          <legend>Amenities &amp; facilities</legend>
+          {amenities.length > 0 && <span>{amenityIds.length} selected</span>}
         </div>
+        <p className="amenity-help">Tick everything available to guests at this hotel, such as Wi-Fi, TV, or a swimming pool.</p>
+        {amenities.length > 0 ? (
+          <div className="amenity-options">
+            {amenities.map((amenity) => {
+              const selected = amenityIds.includes(amenity.id);
+              return (
+                <label key={amenity.id} className={`amenity-option${selected ? ' amenity-option-selected' : ''}`}>
+                  <input
+                    type="checkbox"
+                    name="amenityIds"
+                    value={amenity.id}
+                    checked={selected}
+                    onChange={() => toggleAmenity(amenity.id)}
+                  />
+                  <span>{amenity.name}</span>
+                </label>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="amenity-empty" role="status">Amenity options are loading or unavailable. Refresh the page to try again.</p>
+        )}
       </fieldset>
 
       <div className="field">
